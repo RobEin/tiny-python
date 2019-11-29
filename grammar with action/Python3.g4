@@ -25,7 +25,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  * Project      : python3-parser; an ANTLR4 grammar for Python 3
- *                https://github.com/bkiers/python3-parser
+ *                https://github.com/RobEin/python3-parser/tree/master/grammar%20with%20action
  * Developed by : Bart Kiers, bart@big-o.nl
  */
 
