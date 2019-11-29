@@ -1,4 +1,4 @@
-# Python starter &nbsp; [![Build Status](https://travis-ci.org/bkiers/python3-parser.png)](https://travis-ci.org/bkiers/python3-parser)
+# Python starter &nbsp; 
 
 A considerably stripped down Python grammar for a starter Python (or Python like) parser or even for educational purposes. 
 
