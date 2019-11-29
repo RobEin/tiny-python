@@ -20,8 +20,6 @@ java Main test.py
 
 
 
-
-
 USING of the grammar with action:
 
 antlr4 Python3.g4
