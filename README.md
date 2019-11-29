@@ -1,6 +1,6 @@
-# Python 3 parser &nbsp; [![Build Status](https://travis-ci.org/bkiers/python3-parser.png)](https://travis-ci.org/bkiers/python3-parser)
+# Python starter &nbsp; [![Build Status](https://travis-ci.org/bkiers/python3-parser.png)](https://travis-ci.org/bkiers/python3-parser)
 
-An ANTLR4 grammar for Python 3 based on version 3.3.5 of 
+A considerably stripped down Python grammar for a starter Python (or Python like) parser or even for educational purposes. 
 [The Python Language Reference](https://docs.python.org/3.3/reference/grammar.html).
 
 The unit tests consist of parsing all Python source files from 
