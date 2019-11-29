@@ -18,7 +18,7 @@ javac *.java
 
 java Main test.py
 
-
+------------------------------------------------
 
 USING of the grammar with action:
 
