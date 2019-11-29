@@ -27,6 +27,7 @@
  * Project      : starterPython-parser; an ANTLR4 grammar for Python 3
  *                https://github.com/RobEin/python3-parser/tree/master/grammar%20without%20action
  * Developed by : Bart Kiers, bart@big-o.nl
+                  Robert Einhorn, robert.einhorn.hu@gmail.com
  */
 
 // All comments that start with "///" are copy-pasted from
