@@ -11,9 +11,13 @@ The ANTLR4 grammars are based on the Bart Kiers's Python 3.3 grammar with improv
 
 ## How to use
 USING of the grammar without action:
+
 antlr4 Python3.g4
+
 javac *.java
+
 java Main test.py
+
 
 
 USING of the grammar with action:
@@ -25,6 +29,7 @@ grun Python3 file_input -tokens test.py
 ## Related links
 
 [The Python Language Reference](https://docs.python.org/3.3/reference/grammar.html)
+
 [Bart Kiers's Python 3.3 ANTLR4 grammar](https://github.com/bkiers/python3-parser)
 
 
