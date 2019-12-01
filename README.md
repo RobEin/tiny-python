@@ -15,14 +15,14 @@ The ANTLR4 grammars are based on the [Bart Kiers's Python 3.3 grammar](https://g
 ```
 
 ## How to use
-### grammar without action:
+###   grammar without action:
 ```bash
 antlr4 Python3.g4
 javac *.java
 java Main test.py
 ```
 
-### grammar with action:
+###   grammar with action:
 ```bash
 antlr4 Python3.g4
 javac *.java
