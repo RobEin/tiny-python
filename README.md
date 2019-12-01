@@ -14,8 +14,6 @@ The ANTLR4 grammars are based on the [Bart Kiers's Python 3.3 grammar](https://g
         k = 1
 ```
 
-------------
-
 ## How to use
 ### grammar without action:
 ```bash
@@ -29,8 +27,6 @@ java Main test.py
 antlr4 Python3.g4
 javac *.java
 grun Python3 file_input -tokens test.py
-
-------------
 
 ## Related links
 
