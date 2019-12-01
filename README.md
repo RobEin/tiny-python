@@ -1,4 +1,4 @@
-# Python starter &nbsp; 
+# Python starter &nbsp; [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A considerably stripped down Python grammar for a starter Python (or Python like) parser or even for educational purposes. 
 
