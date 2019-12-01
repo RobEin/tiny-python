@@ -7,9 +7,12 @@ The ANTLR4 grammars are based on the Bart Kiers's Python 3.3 grammar with improv
  - advanced token metadata information (see grun)
  - reusable code for grammar with actions and without actions
  - detection of inconsistent dedent (half dedent)
+
     for example:
     while i == 1:
+
         k = 1
+
       j = 1
  
 
