@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 by Bart Kiers
+ * Copyright (c) 2019 by Robert Einhorn
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,37 +24,35 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Project      : python3-parser; an ANTLR4 grammar for Python 3
- *                https://github.com/RobEin/python3-parser/tree/master/grammar%20with%20action
- * Developed by : Bart Kiers, bart@big-o.nl
-                  Robert Einhorn, robert.einhorn.hu@gmail.com
+ * Project      : Python3 Indent/Dedent handler for ANTLR4 grammars
+ *                https://github.com
+ * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
  */
 
-// All comments that start with "///" are copy-pasted from
-// The Python Language Reference: https://docs.python.org/3.3/reference/grammar.html
-
-                                                                     //*** https://github.com/antlr/antlr4/tree/master/doc
-grammar Python3;  //                                                 //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-structure
-
-tokens { INDENT, DEDENT, INCONSISTENT_DEDENT }                       //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#tokens-section
+import org.antlr.v4.runtime.*;
 
 
-
-// this embedded code section will be copied to the generated file: Python3Lexer.java
-@lexer::header {                                                     //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#actions-at-the-grammar-level
+// **********************************************************************************************************
+// **** THE FOLLOWING IMPORT STATEMENT ALSO CAN BE USED IN ANTLR4 GRAMMAR FILE @lexer::header{} SECTION ****
+// **********************************************************************************************************
 import java.util.*;
-}
 
-// this embedded code section will be copied to the generated file: Python3Lexer.java
-@lexer::members {
-    // The stack that keeps track of the indentation length with initializing the default indentation length 0.
-    private final Stack<Integer> indentLengths = new Stack<>() {{
-        push(0);
-    }};
+public class LexerWithIndentDedentInjector extends Python3Lexer {
+    public LexerWithIndentDedentInjector(CharStream input) {
+        super(input);
+    }
+
+
+    // *************************************************************************************************
+    // **** THE FOLLOWING SECTION ALSO CAN BE USED IN ANTLR4 GRAMMAR FILE @lexer::members{} SECTION ****
+    // *************************************************************************************************
+
+    // The stack that keeps track of the indentation length
+    private final Stack<Integer> indentLengths = new Stack<>();
 
     // A queue where extra tokens are pushed on.
     private final Deque<Token> pendingTokens = new ArrayDeque<>();
-    // An int that stores the type of the last inserted pending token.
+    // An integer that stores the type of the last inserted pending token.
     private int lastInsertedTokenType;
 
     // The amount of opened braces, brackets and parenthesis.
@@ -67,7 +65,8 @@ import java.util.*;
 
     @Override
     public Token nextToken() {                                           //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/Lexer.html#nextToken()
-        if (atStartOfInput()) {
+        if (getCharIndex() == 0) {  // We're at the start of the input.
+            indentLengths.push(0);  // initializing with the default indentation length 0
             insertLeadingTokens();
         }
 
@@ -79,13 +78,13 @@ import java.util.*;
                 case OPEN_BRACK:
                 case OPEN_BRACE:
                     opened++;
-                    pendingTokens.addLast(currentToken);  // insert the open parentheses or square bracket or curly brace token
+                    pendingTokens.addLast(currentToken);  // insert the open parentheses/square bracket/curly brace token
                     break;
                 case CLOSE_PAREN:
                 case CLOSE_BRACK:
                 case CLOSE_BRACE:
                     opened--;
-                    pendingTokens.addLast(currentToken);  // insert the close parentheses or square bracket or curly brace token
+                    pendingTokens.addLast(currentToken);  // insert the close parentheses/square bracket/curly brace token
                     break;
                 case NEWLINE:
                     if (opened > 0) {                                    //*** https://docs.python.org/3/reference/lexical_analysis.html#implicit-line-joining
@@ -95,11 +94,11 @@ import java.util.*;
                             case '\r':
                             case '\n':
                             case '\f':
-                            case '#':
+                            case '#':                                      //*** https://docs.python.org/3/reference/lexical_analysis.html#blank-lines
                                 continue;  // We're on a blank line or before a comment, skip the NEWLINE token.
                             default:
                                 pendingTokens.addLast(currentToken); // insert the NEWLINE token
-                                insertIndentDedentTokens();
+                                insertIndentDedentTokens();                //*** https://docs.python.org/3/reference/lexical_analysis.html#indentation
                         }
                     }
                     break;
@@ -123,7 +122,7 @@ import java.util.*;
 
     private void insertLeadingTokens() {
         final String leadingSpacesAndTabs = getSpacesAndTabsFromTheCurrentPosition();
-        if (!leadingSpacesAndTabs.isEmpty()) {
+        if (!leadingSpacesAndTabs.isEmpty()) {  // the input starts with space(s) or tab(s)
             final int currentIndentLength = getIndentationLength(leadingSpacesAndTabs);
             Token token;
             token = getNewToken(
@@ -139,7 +138,7 @@ import java.util.*;
                     0,
                     -1,
                     "<inserted leading INDENT, " + getIndentationDescription(currentIndentLength) + ">",
-                    Python3Parser.INDENT,
+                    Python3Parser.INDENT, // the generated name of the Python3Parser class is based on the current grammar name
                     1,
                     leadingSpacesAndTabs.length());
 
@@ -153,7 +152,7 @@ import java.util.*;
         final int currentIndentLength = getIndentationLength(getText()); //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/TokenStream.html#getText()
         int previousIndentLength = indentLengths.peek();
         if (currentIndentLength > previousIndentLength) {
-            insertToken("<inserted INDENT, " + getIndentationDescription(currentIndentLength) + ">", Python3Parser.INDENT);
+            insertToken("<inserted INDENT, " + getIndentationDescription(currentIndentLength) + ">", Python3Parser.INDENT); // the generated name of the Python3Parser class is based on the current grammar name
             indentLengths.push(currentIndentLength); // in order after the insertToken!
         } else if (currentIndentLength < previousIndentLength) {
             // More than 1 DEDENT tokens may be inserted.
@@ -161,9 +160,9 @@ import java.util.*;
                 indentLengths.pop(); // in order before the insertToken!
                 previousIndentLength = indentLengths.peek();
                 if (currentIndentLength <= previousIndentLength) {
-                    insertToken("<inserted DEDENT, " + getIndentationDescription(previousIndentLength) + ">", Python3Parser.DEDENT);
+                    insertToken("<inserted DEDENT, " + getIndentationDescription(previousIndentLength) + ">", Python3Parser.DEDENT); // the generated name of the Python3Parser class is based on the current grammar name
                 } else {
-                    insertToken("!!! INCONSISTENT DEDENT !!! " + getIndentationDescription(currentIndentLength), Python3Parser.INCONSISTENT_DEDENT);
+                    insertToken("!!! INCONSISTENT DEDENT !!! " + getIndentationDescription(currentIndentLength), Python3Parser.DEDENT); // the generated name of the Python3Parser class is based on the current grammar name
                     System.err.println("ERROR:   line " + getLine() + ":" + getCharPositionInLine() + " inconsistent dedent");
                 }
             } while (currentIndentLength < previousIndentLength);
@@ -173,25 +172,24 @@ import java.util.*;
     private void insertTrailingTokens() {
         switch (lastInsertedTokenType) {
             case NEWLINE:
-            case Python3Parser.DEDENT:
-            case Python3Parser.INCONSISTENT_DEDENT:
-                break; // no new line is needed
+            case Python3Parser.DEDENT: // the generated name of the Python3Parser class is based on the current grammar name
+                break; // no trailing NEWLINE token is needed
             default:
-                // insert an extra line break that serves as the end of the statement
+                // insert an extra trailing NEWLINE token that serves as the end of the statement
                 insertToken("<inserted trailing NEWLINE>", NEWLINE);
         }
 
+        // Now insert as much trailing DEDENT tokens as needed.
         int previousIndentLength = indentLengths.peek();
         while (previousIndentLength != 0) {  // indentLengths stack has been initialized with integer 0
             indentLengths.pop();  // in order before the insertToken!
             previousIndentLength = indentLengths.peek();
-            insertToken("<inserted trailing DEDENT, " + getIndentationDescription(previousIndentLength) + ">", Python3Parser.DEDENT);
+            insertToken("<inserted trailing DEDENT, " + getIndentationDescription(previousIndentLength) + ">", Python3Parser.DEDENT); // the generated name of the Python3Parser class is based on the current grammar name
         }
-        indentLengths.pop();  // = removeAllElements(), indentLengths.size() is 0
+        indentLengths.pop();  // now indentLengths.size() is 0
     }
 
     private void displayWarnings() {
-        getIndentationLength(getText());
         if (wasSpaceIndentation && wasTabIndentation) {
             System.out.println("WARNING: mixture of spaces and tabs were used for indentation");
         }
@@ -199,7 +197,7 @@ import java.util.*;
 
     private CommonToken getNewToken(int startIndex, int stopIndex, String text, int type, int line, int charPositionInLine) {
         //*** metadata settings *** - display format in grun: [@TOKENNUMBER,startIndex:stopIndex='text','<type>',line:charPositionInLine]
-        final var token = new CommonToken(type, text);                   //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/CommonToken.html
+        final CommonToken token = new CommonToken(type, text);           //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/CommonToken.html
         token.setStartIndex(startIndex);                                 //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/CommonToken.html#setStartIndex(int)
         token.setStopIndex(stopIndex);                                   //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/CommonToken.html#setStopIndex(int)
         token.setLine(line);                                             //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/CommonToken.html#setLine(int)
@@ -210,7 +208,8 @@ import java.util.*;
     private void insertToken(String text, int type) {
         final int startIndex = _tokenStartCharIndex + getText().length();//*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/Lexer.html#_tokenStartCharIndex
         final CommonToken token =
-                getNewToken(startIndex,
+                getNewToken(
+                        startIndex,
                         startIndex - 1,
                         text,
                         type,
@@ -225,17 +224,18 @@ import java.util.*;
     }
 
     private String getSpacesAndTabsFromTheCurrentPosition() {
-        var spaces_and_tabs = new StringBuilder();
+        StringBuilder spaces_and_tabs = new StringBuilder();
         int count = 1;
         char ch;
 
         while (true) {
             ch = (char) _input.LA(count);
             switch (ch) {
-                case ' ':
+                case ' ': // space char
                 case '\t':
                     spaces_and_tabs.append(ch);
                     count++;
+                    continue;
                 default:
                     return spaces_and_tabs.toString();
             }
@@ -266,131 +266,6 @@ import java.util.*;
                     break;
             }
         }
-
         return count;
     }
-
-    private boolean atStartOfInput() {
-        return getCharPositionInLine() == 0 &&                           //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/Lexer.html#getCharPositionInLine()
-                getLine() == 1;                                          //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/Lexer.html#getLine()
-    }
 }
-
-
-/*
- * parser rules
- */
-
-// startRules:
-single_input: NEWLINE | simple_stmt | compound_stmt NEWLINE;
-file_input:  (NEWLINE | stmt)* EOF;
-
-stmt: simple_stmt | compound_stmt;
-
-simple_stmt: small_stmt NEWLINE;
-small_stmt: assignment_stmt | flow_stmt | print_stmt;
-assignment_stmt: NAME '=' expr;
-flow_stmt: break_stmt | continue_stmt;
-break_stmt: 'break';
-continue_stmt: 'continue';
-
-compound_stmt: if_stmt | while_stmt;
-if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ('else' ':' suite)?;
-while_stmt: 'while' test ':' suite;
-suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT;  // a simple_stmt-et tesztelni kell!
-
-test: expr (comp_op expr)*;  // different from the original grammar
-print_stmt: 'print' STRING | expr; // only for demonstration
-
-comp_op: '<' | '>' | '==' | '>=' | '<=' | '!=';
-expr:
-   expr (( '+' | '-' ) expr)+
- | NAME
- | NUMBER
- | '(' expr ')'
-;
-
-
-/*
- * lexer rules
- */
-
-STRING
- : STRING_LITERAL
- ;
-
-NUMBER
- : INTEGER
- ;
-
-INTEGER
- : DECIMAL_INTEGER
- ;
-
-NEWLINE
- : ( '\r'? '\n' | '\r' | '\f' ) SPACES?
- ;
-
-NAME
- : ID_START ID_CONTINUE*
- ;
-
-STRING_LITERAL
- : '"' .*? '"' 
- ;
-
-DECIMAL_INTEGER
- : NON_ZERO_DIGIT DIGIT*
- | '0'+
- ;
-
-OPEN_PAREN : '(';
-CLOSE_PAREN : ')';
-OPEN_BRACK : '[';
-CLOSE_BRACK : ']';
-OPEN_BRACE : '{';
-CLOSE_BRACE : '}';
-
-SKIP_
- : ( SPACES | COMMENT | LINE_JOINING ) -> skip
- ;
-
-UNKNOWN_CHAR
- : .
- ;
-
-
-/* 
- * fragments 
- */
-
-fragment NON_ZERO_DIGIT
- : [1-9]
- ;
-
-fragment DIGIT
- : [0-9]
- ;
-
-fragment SPACES
- : [ \t]+
- ;
-
-fragment COMMENT
- : '#' ~[\r\n\f]*
- ;
-
-fragment LINE_JOINING
- : '\\' SPACES? ( '\r'? '\n' | '\r' | '\f' )
- ;
-
-fragment ID_START
- : '_'
- | [A-Z]
- | [a-z]
- ;
-
-fragment ID_CONTINUE
- : ID_START
- | [0-9]
- ;

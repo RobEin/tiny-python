@@ -1,7 +1,8 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 by Bart Kiers
+ * Copyright (c) 2014 Bart Kiers
+ * Copyright (c) 2019 Robert Einhorn
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,19 +25,22 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Project      : starterPython-parser; an ANTLR4 grammar for Python 3
- *                https://github.com/RobEin/python3-parser/tree/master/grammar%20without%20action
+ * Project      : Python3-parser; an ANTLR4 grammar for Python 3
+ *                https://github.com/bkiers/Python3-parser
  * Developed by : Bart Kiers, bart@big-o.nl
-                  Robert Einhorn, robert.einhorn.hu@gmail.com
+ *
+ * Project      : starterPython-parser; an ANTLR4 grammar for Python 3 without actions
+ *                https://github.com/RobEin/python3-parser/tree/master/grammar%20without%20actions
+ * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
  */
 
-// All comments that start with "///" are copy-pasted from
-// The Python Language Reference: https://docs.python.org/3.3/reference/grammar.html
+// Based on the Bart Kiers ANTLR4 Python grammar: https://github.com/bkiers/Python3-parser
+// and the Python 3.3 Language Reference:         https://docs.python.org/3.3/reference/grammar.html
 
-                                                                     //*** https://github.com/antlr/antlr4/tree/master/doc
-grammar Python3;                                               //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-structure
+                                                //*** https://github.com/antlr/antlr4/tree/master/doc
+grammar Python3;                                //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-structure
 
-tokens { INDENT, DEDENT, INCONSISTENT_DEDENT }                       //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#tokens-section
+tokens { INDENT, DEDENT }                       //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#tokens-section
 
 /*
  * parser rules
@@ -58,7 +62,7 @@ continue_stmt: 'continue';
 compound_stmt: if_stmt | while_stmt;
 if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ('else' ':' suite)?;
 while_stmt: 'while' test ':' suite;
-suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT;  // a simple_stmt-et tesztelni kell!
+suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT;
 
 test: expr (comp_op expr)*;  // different from the original grammar
 print_stmt: 'print' STRING | expr; // only for demonstration
