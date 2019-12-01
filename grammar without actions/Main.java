@@ -9,11 +9,5 @@ public class Main {
         }
         System.out.println();
         System.out.println(input.toString());
-
-//        CommonTokenStream tokens = new CommonTokenStream(lexer);
-//        Python3Parser parser = new Python3Parser(tokens);
-//        RuleContext tree = parser.file_input();
-//
-//        System.out.print(tree.toStringTree(parser));
     }
 }
