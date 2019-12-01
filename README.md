@@ -24,8 +24,6 @@ javac *.java
 java Main test.py
 ```
 
-------------
-
 ### grammar with action:
 ```bash
 antlr4 Python3.g4
