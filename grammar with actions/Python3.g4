@@ -31,8 +31,7 @@
  *
  * Project      : python3-parser; an ANTLR4 grammar for Python 3 with actions
  *                https://github.com/RobEin/python3-parser/tree/master/grammar%20with%20actions
- * Developed by : Bart Kiers, bart@big-o.nl
-                  Robert Einhorn, robert.einhorn.hu@gmail.com
+ * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
  */
 
 // Based on the Bart Kiers ANTLR4 Python grammar: https://github.com/bkiers/Python3-parser
