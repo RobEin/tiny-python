@@ -2,7 +2,7 @@
 
 A considerably stripped down Python grammar for a starter Python (or Python like) parser or even for educational purposes. 
 
-The ANTLR4 grammars are based on the Bart Kiers's Python 3.3 grammar with improved indent/dedent handling with the following advantages:
+The ANTLR4 grammars are based on the [Bart Kiers's Python 3.3 grammar](https://github.com/bkiers/python3-parser) with an improved indent/dedent handling with the following advantages:
 -  warning for mixture of space and tab indentation
 -  advanced token metadata information (see grun)
 -  reusable code for grammar with actions and without actions
@@ -14,28 +14,20 @@ The ANTLR4 grammars are based on the Bart Kiers's Python 3.3 grammar with improv
         k = 1
 ```
 
-------------
-
 ## How to use
-##### grammar without action:
-
+### grammar with actions:
+```bash
 antlr4 Python3.g4
-
 javac *.java
-
-java Main test.py
-
-------------
-
-##### grammar with action:
-
-antlr4 Python3.g4
-
-javac *.java
-
 grun Python3 file_input -tokens test.py
+```
 
-------------
+### grammar without actions:
+```bash
+antlr4 Python3.g4
+javac *.java
+java Main test.py
+```
 
 ## Related links
 
