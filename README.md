@@ -2,7 +2,7 @@
 
 A considerably stripped down Python grammar for a starter Python (or Python like) parser or even for educational purposes. 
 
-The ANTLR4 grammars are based on the [Bart Kiers's Python 3.3 grammar](https://github.com/bkiers/python3-parser) with improved indent/dedent handling with the following advantages:
+The ANTLR4 grammars are based on the [Bart Kiers's Python 3.3 grammar](https://github.com/bkiers/python3-parser) with an improved indent/dedent handling with the following advantages:
 -  warning for mixture of space and tab indentation
 -  advanced token metadata information (see grun)
 -  reusable code for grammar with actions and without actions
