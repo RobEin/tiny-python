@@ -10,8 +10,8 @@ The ANTLR4 grammars are based on the Bart Kiers's Python 3.3 grammar with improv
 ```python
     # for example
     if i == 1:
-            k = 1
-        j = 1
+            j = 1
+        k = 1
 ```
 
 ------------
