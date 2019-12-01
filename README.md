@@ -9,8 +9,8 @@ The ANTLR4 grammars are based on the Bart Kiers's Python 3.3 grammar with improv
 -  detection of inconsistent dedent (half dedent):
 ```python
     if i == 1:
-        k = 1
-      j = 1
+            k = 1
+        j = 1
 ```
 
 ------------
