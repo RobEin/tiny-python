@@ -3,17 +3,17 @@
 A considerably stripped down Python grammar for a starter Python (or Python like) parser or even for educational purposes. 
 
 The ANTLR4 grammars are based on the Bart Kiers's Python 3.3 grammar with improved indent/dedent handling with the following advantages:
- - warning for mixture of space and tab indentation
- - advanced token metadata information (see grun)
- - reusable code for grammar with actions and without actions
- - detection of inconsistent dedent (half dedent)
-    for example:    
+-  warning for mixture of space and tab indentation
+-  advanced token metadata information (see grun)
+-  reusable code for grammar with actions and without actions
+-  detection of inconsistent dedent (half dedent):
 ```python
     if i == 1:
         k = 1
       j = 1
 ```
 
+------------
 
 ## How to use
 USING of the grammar without action:
@@ -24,7 +24,7 @@ javac *.java
 
 java Main test.py
 
-------------------------------------------------
+------------
 
 USING of the grammar with action:
 
@@ -34,9 +34,7 @@ javac *.java
 
 grun Python3 file_input -tokens test.py
 
-
-
-
+------------
 
 ## Related links
 
