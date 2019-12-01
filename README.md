@@ -39,9 +39,10 @@ grun Python3 file_input -tokens test.py
 
 ## Related links
 
+[ANTLR 4 Documentation](https://github.com/antlr/antlr4/blob/4.7.2/doc/index.md)
+
 [The Python 3.3.7 Language Reference](https://docs.python.org/3.3/reference/grammar.html)
 
 [Bart Kiers's Python 3.3 ANTLR4 grammar](https://github.com/bkiers/python3-parser)
 
-[ANTLR 4 Documentation](https://github.com/antlr/antlr4/blob/4.7.2/doc/index.md)
 
