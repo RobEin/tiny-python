@@ -37,10 +37,11 @@
 // Based on the Bart Kiers's ANTLR4 Python 3.3 grammar: https://github.com/bkiers/Python3-parser
 // and the Python 3.3.7 Language Reference:             https://docs.python.org/3.3/reference/grammar.html
 
-                                                //*** https://github.com/antlr/antlr4/tree/master/doc
-grammar Python3;                                //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-structure
+                                                                     //*** https://github.com/antlr/antlr4/blob/master/doc/index.md
+                                                                     //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-structure
+grammar Python3; // tiny version
 
-tokens { INDENT, DEDENT }                       //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#tokens-section
+tokens { INDENT, DEDENT }                                            //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#tokens-section
 
 /*
  * parser rules

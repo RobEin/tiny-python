@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 by Bart Kiers
+ * Copyright (c) 2014 Bart Kiers
  * Copyright (c) 2019 Robert Einhorn
  *
  * Permission is hereby granted, free of charge, to any person
@@ -37,8 +37,9 @@
 // Based on the Bart Kiers's ANTLR4 Python 3.3 grammar: https://github.com/bkiers/Python3-parser
 // and the Python 3.3.7 Language Reference:             https://docs.python.org/3.3/reference/grammar.html
 
-                                                                     //*** https://github.com/antlr/antlr4/tree/master/doc
-grammar Python3;  //                                                 //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-structure
+                                                                     //*** https://github.com/antlr/antlr4/blob/master/doc/index.md
+                                                                     //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-structure
+grammar Python3; // tiny version
 
 tokens { INDENT, DEDENT }                                            //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#tokens-section
 
@@ -99,11 +100,11 @@ public Token nextToken() {                                           //*** https
 						case '\r':
 						case '\n':
 						case '\f':
-						case '#':                                      //*** https://docs.python.org/3/reference/lexical_analysis.html#blank-lines
+						case '#':                                    //*** https://docs.python.org/3/reference/lexical_analysis.html#blank-lines
 							continue;  // We're on a blank line or before a comment, skip the NEWLINE token.
 						default:
 							pendingTokens.addLast(currentToken); // insert the NEWLINE token
-							insertIndentDedentTokens();                //*** https://docs.python.org/3/reference/lexical_analysis.html#indentation
+							insertIndentDedentTokens();              //*** https://docs.python.org/3/reference/lexical_analysis.html#indentation
 					}
 				}
 				break;
@@ -218,8 +219,8 @@ private void insertToken(String text, int type) {
 					startIndex - 1,
 					text,
 					type,
-					getLine(),                 //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/Lexer.html#getLine();
-					getCharPositionInLine());  //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/Lexer.html#getCharPositionInLine()
+					getLine(),                                       //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/Lexer.html#getLine();
+					getCharPositionInLine());                        //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/Lexer.html#getCharPositionInLine()
 
 	pendingTokens.addLast(token);
 }
