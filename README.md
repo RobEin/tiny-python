@@ -1,12 +1,12 @@
-# Python starter &nbsp; 
+# Python starter &nbsp; [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A considerably stripped down Python grammar for a starter Python (or Python like) parser or even for educational purposes. 
 
-The ANTLR4 grammars are based on the [Bart Kiers's Python 3.3 grammar](https://github.com/bkiers/python3-parser) with an improved indent/dedent handling with the following advantages:
+The [ANTLR4](https://www.antlr.org/) grammars are based on the [Bart Kiers's Python 3.3 grammar](https://github.com/bkiers/python3-parser) with an improved indent/dedent handling with the following advantages:
 -  warning for mixture of space and tab indentation
 -  advanced token metadata information (see grun)
 -  reusable code for grammar with actions and without actions
--  detection of inconsistent dedent (half dedent):
+-  detection of [inconsistent dedent](https://docs.python.org/2.5/ref/indentation.html) (half dedent):
 ```python
     # for example
     if i == 1:
