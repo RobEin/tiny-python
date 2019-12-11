@@ -138,7 +138,7 @@ public class LexerWithIndentDedentInjector extends Python3Lexer {
                     0,
                     -1,
                     "<inserted leading INDENT, " + getIndentationDescription(currentIndentLength) + ">",
-                    Python3Parser.INDENT, // the generated name of the Python3Parser class is based on the current grammar name
+                    Python3Parser.INDENT, // the "Python3Parser" is a generated name, based on the current grammar name
                     1,
                     leadingSpacesAndTabs.length());
 
@@ -152,7 +152,7 @@ public class LexerWithIndentDedentInjector extends Python3Lexer {
         final int currentIndentLength = getIndentationLength(getText()); //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/TokenStream.html#getText()
         int previousIndentLength = indentLengths.peek();
         if (currentIndentLength > previousIndentLength) {
-            insertToken("<inserted INDENT, " + getIndentationDescription(currentIndentLength) + ">", Python3Parser.INDENT); // the generated name of the Python3Parser class is based on the current grammar name
+            insertToken("<inserted INDENT, " + getIndentationDescription(currentIndentLength) + ">", Python3Parser.INDENT);
             indentLengths.push(currentIndentLength); // in order after the insertToken!
         } else if (currentIndentLength < previousIndentLength) {
             // More than 1 DEDENT tokens may be inserted.
@@ -160,9 +160,9 @@ public class LexerWithIndentDedentInjector extends Python3Lexer {
                 indentLengths.pop(); // in order before the insertToken!
                 previousIndentLength = indentLengths.peek();
                 if (currentIndentLength <= previousIndentLength) {
-                    insertToken("<inserted DEDENT, " + getIndentationDescription(previousIndentLength) + ">", Python3Parser.DEDENT); // the generated name of the Python3Parser class is based on the current grammar name
+                    insertToken("<inserted DEDENT, " + getIndentationDescription(previousIndentLength) + ">", Python3Parser.DEDENT);
                 } else {
-                    insertToken("!!! INCONSISTENT DEDENT !!! " + getIndentationDescription(currentIndentLength), Python3Parser.DEDENT); // the generated name of the Python3Parser class is based on the current grammar name
+                    insertToken("!!! INCONSISTENT DEDENT !!! " + getIndentationDescription(currentIndentLength), Python3Parser.DEDENT);
                     System.err.println("ERROR:   line " + getLine() + ":" + getCharPositionInLine() + " inconsistent dedent");
                 }
             } while (currentIndentLength < previousIndentLength);
@@ -172,7 +172,7 @@ public class LexerWithIndentDedentInjector extends Python3Lexer {
     private void insertTrailingTokens() {
         switch (lastInsertedTokenType) {
             case NEWLINE:
-            case Python3Parser.DEDENT: // the generated name of the Python3Parser class is based on the current grammar name
+            case Python3Parser.DEDENT:
                 break; // no trailing NEWLINE token is needed
             default:
                 // insert an extra trailing NEWLINE token that serves as the end of the statement
@@ -184,7 +184,7 @@ public class LexerWithIndentDedentInjector extends Python3Lexer {
         while (previousIndentLength != 0) {  // indentLengths stack has been initialized with integer 0
             indentLengths.pop();  // in order before the insertToken!
             previousIndentLength = indentLengths.peek();
-            insertToken("<inserted trailing DEDENT, " + getIndentationDescription(previousIndentLength) + ">", Python3Parser.DEDENT); // the generated name of the Python3Parser class is based on the current grammar name
+            insertToken("<inserted trailing DEDENT, " + getIndentationDescription(previousIndentLength) + ">", Python3Parser.DEDENT);
         }
         indentLengths.pop();  // now indentLengths.size() is 0
     }
