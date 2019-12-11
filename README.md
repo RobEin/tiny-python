@@ -7,12 +7,7 @@ The [ANTLR4](https://www.antlr.org/) grammars are based on the [Bart Kiers's Pyt
 -  advanced token metadata information (see grun)
 -  reusable code for grammar with actions and without actions
 -  detection of [inconsistent dedent](https://docs.python.org/2.5/ref/indentation.html) (half dedent):
-```python
-    # for example
-    if i == 1:
-            j = 1
-        k = 1
-```
+
 
 ## How to use
 ### grammar with actions:
@@ -26,7 +21,7 @@ grun Python3 file_input -tokens test.py
 ```bash
 antlr4 Python3.g4
 javac *.java
-java Main test.py
+java main test.py
 ```
 
 ## Related links
