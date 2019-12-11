@@ -6,7 +6,7 @@ The [ANTLR4](https://www.antlr.org/) grammars are based on the [Bart Kiers's Pyt
 -  warning for mixture of space and tab indentation
 -  advanced token metadata information (see grun)
 -  reusable code for grammar with actions and without actions
--  detection of [inconsistent dedent](https://docs.python.org/2.5/ref/indentation.html) (half dedent):
+-  detection of [inconsistent dedent](https://python.readthedocs.io/en/latest/reference/lexical_analysis.html#indentation) (half dedent):
 
 
 ## How to use
