@@ -21,7 +21,7 @@ grun Python3 file_input -tokens test.py
 ```bash
 antlr4 Python3.g4
 javac *.java
-java Main test.py
+java main test.py
 ```
 
 ## Related links
