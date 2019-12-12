@@ -10,14 +10,14 @@ The [ANTLR4](https://www.antlr.org/) grammars are based on the [Bart Kiers's Pyt
 
 
 ## How to use
-### grammar with actions:
+#### grammar with actions:
 ```bash
 antlr4 Python3.g4
 javac *.java
 grun Python3 file_input -tokens test.py
 ```
 
-### grammar without actions:
+#### grammar without actions:
 ```bash
 antlr4 Python3.g4
 javac *.java
