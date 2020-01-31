@@ -29,8 +29,8 @@
  *                https://github.com/bkiers/Python3-parser
  * Developed by : Bart Kiers, bart@big-o.nl
  *
- * Project      : Tiny Python3-parser; an ANTLR4 grammar for a considerably stripped down version of Python 3
- *                https://github.com
+ * Project      : an ANTLR4 grammar for Python 3 without actions
+ *                https://github.com/RobEin/python3-parser/tree/master/full%20grammar%20without%20actions/3.3
  * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
  */
 
@@ -38,11 +38,9 @@
 // All comments that start with "///" are copy-pasted from
 // the Python 3.3 Language Reference: https://docs.python.org/3.3/reference/grammar.html
 
-                                                                     //*** https://github.com/antlr/antlr4/tree/master/doc
-                                                                     //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-structure
 grammar Python3;
 
-tokens { INDENT, DEDENT }                       //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#tokens-section
+tokens { INDENT, DEDENT }
 
 
 /*

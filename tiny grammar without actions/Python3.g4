@@ -29,19 +29,17 @@
  *                https://github.com/bkiers/Python3-parser
  * Developed by : Bart Kiers, bart@big-o.nl
  *
- * Project      : starterPython-parser; an ANTLR4 grammar for Python 3 without actions
- *                https://github.com/RobEin/python3-parser/tree/master/grammar%20without%20actions
+ * Project      : an ANTLR4 grammar for Tiny Python without embedded actions
+ *                https://github.com/RobEin/python3-parser/tree/master/tiny%20grammar%20without%20actions
  * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
  */
 
 // Based on the Bart Kiers's ANTLR4 Python 3.3 grammar: https://github.com/bkiers/Python3-parser
 // and the Python 3.3.7 Language Reference:             https://docs.python.org/3.3/reference/grammar.html
 
-                                                                     //*** https://github.com/antlr/antlr4/blob/master/doc/index.md
-                                                                     //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-structure
 grammar Python3; // tiny version
 
-tokens { INDENT, DEDENT }                                            //*** https://github.com/antlr/antlr4/blob/master/doc/grammars.md#tokens-section
+tokens { INDENT, DEDENT }
 
 /*
  * parser rules
@@ -65,7 +63,7 @@ if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ('else' ':' suite)?;
 while_stmt: 'while' test ':' suite;
 suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT;
 
-test: expr (comp_op expr)*;  // different from the original grammar
+test: expr (comp_op expr)*;  // differents from the original grammar
 print_stmt: 'print' STRING | expr; // only for demonstration
 
 comp_op: '<' | '>' | '==' | '>=' | '<=' | '!=';
