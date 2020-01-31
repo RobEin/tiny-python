@@ -32,9 +32,9 @@
 
 import org.antlr.v4.runtime.*;
 
-// ***********************************************************************************************************
-// **** THE FOLLOWING IMPORT SECTION ALSO CAN BE USED IN THE @lexer::header{} SECTION OF THE GRAMMAR FILE ****
-// ***********************************************************************************************************
+// ************************************************************************************************************
+// **** THE FOLLOWING IMPORT SECTION ALSO CAN BE USED IN THE SECTION OF THE @lexer::header{} IN THE GRAMMAR****
+// ************************************************************************************************************
 import java.util.*;
 
 public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/Lexer.html
@@ -42,9 +42,9 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
         super(input);
     }
 
-    // *****************************************************************************************************
-    // **** THE FOLLOWING SECTION ALSO CAN BE USED IN THE @lexer::members{} SECTION OF THE GRAMMAR FILE ****
-    // *****************************************************************************************************
+    // *******************************************************************************************************
+    // **** THE FOLLOWING SECTION ALSO CAN BE USED IN THE SECTION OF THE @lexer::members{} IN THE GRAMMAR ****
+    // *******************************************************************************************************
     // The stack that keeps track of the indentation length
     private final Stack<Integer> indentLengths = new Stack<>() {{ push(0); }}; // initializing with default 0 indentation length
 
@@ -124,7 +124,7 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
 
     private void insertLeadingTokens(boolean atVeryFirstCharWhichIsSpaceOrTAB, int type, int startIndex) {
         if (atVeryFirstCharWhichIsSpaceOrTAB &&   // We're at the first line of the input starting with a space or TAB
-            !List.of(NEWLINE, EOF).contains(type) // and within that the first token that is visible (comments were skiped and OPEN_PAREN, OPEN_BRACK and OPEN_BRACE cannot be the first token)
+            !List.of(NEWLINE, EOF).contains(type) // and within that the first token that is visible (comments were skiped and OPEN_PAREN, OPEN_BRACK OPEN_BRACE cannot be the first token)
            ) {                                    // We need to insert a NEWLINE and an INDENT token before the first token to raise an 'unexpected indent' error by the parser later
             this.insertToken(0, startIndex - 1, "<inserted leading NEWLINE>" + " ".repeat(startIndex), NEWLINE, 1, 0);
             this.insertToken(startIndex, startIndex - 1, "<" + this._INSERTED_INDENT + ", " + this.getIndentationDescription(startIndex) + ">", Python3Parser.INDENT, 1, startIndex);

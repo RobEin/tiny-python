@@ -32,9 +32,9 @@
 
 import org.antlr.v4.runtime.*;
 
-// ***********************************************************************************************************
-// **** THE FOLLOWING IMPORT SECTION ALSO CAN BE USED IN THE @lexer::header{} SECTION OF THE GRAMMAR FILE ****
-// ***********************************************************************************************************
+// ************************************************************************************************************
+// **** THE FOLLOWING IMPORT SECTION ALSO CAN BE USED IN THE SECTION OF THE @lexer::header{} IN THE GRAMMAR****
+// ************************************************************************************************************
 import java.util.*;
 
 public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/Lexer.html
@@ -42,9 +42,9 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
         super(input);
     }
 
-    // *****************************************************************************************************
-    // **** THE FOLLOWING SECTION ALSO CAN BE USED IN THE @lexer::members{} SECTION OF THE GRAMMAR FILE ****
-    // *****************************************************************************************************
+    // *******************************************************************************************************
+    // **** THE FOLLOWING SECTION ALSO CAN BE USED IN THE SECTION OF THE @lexer::members{} IN THE GRAMMAR ****
+    // *******************************************************************************************************
     // The stack that keeps track of the indentation length
     private final Stack<Integer> indentLengths = new Stack<>() {{ push(0); }}; // initializing with default 0 indentation length
 
