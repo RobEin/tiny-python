@@ -3,10 +3,9 @@
 A considerably stripped down Python grammar for a starter Python (or Python like) parser or even for educational purposes. 
 
 The [ANTLR4](https://www.antlr.org/) grammars are based on the [Bart Kiers's Python 3.3 grammar](https://github.com/bkiers/python3-parser) with an improved indent/dedent handling with the following advantages:
--  warning for mixture of space and tab indentation
--  advanced token metadata information (see grun)
--  reusable code for grammar with actions and without actions
--  detection of [inconsistent dedent](https://python.readthedocs.io/en/latest/reference/lexical_analysis.html#indentation) (half dedent):
+-  more informative token metadata
+-  reusable code for grammar with embedded action and without action
+-  detection and display of various indentation errors (for without action)
 
 
 ## How to use
@@ -21,7 +20,7 @@ grun Python3 file_input -tokens test.py
 ```bash
 antlr4 Python3.g4
 javac *.java
-java main test.py
+java Main test.py
 ```
 
 ## Related links
