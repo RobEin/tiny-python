@@ -5,7 +5,7 @@ A considerably stripped down Python grammar for a starter Python (or Python like
 The [ANTLR4](https://www.antlr.org/) grammars are based on the [Bart Kiers's Python 3.3 grammar](https://github.com/bkiers/python3-parser) with an improved indent/dedent handling with the following advantages:
 -  more informative token metadata
 -  reusable code for grammar with embedded action and without action
--  detection and display of various indentation errors (for without action)
+-  detection of various indentation errors (for without action)
 
 
 ## How to use
