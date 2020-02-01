@@ -30,7 +30,7 @@
  * Developed by : Bart Kiers, bart@big-o.nl
  *
  * Project      : an ANTLR4 grammar for Python 3 without actions
- *                https://github.com/RobEin/python3-parser/tree/master/full%20grammar%20without%20actions/3.3
+ *                https://github.com/RobEin/python3-parser/tree/master/full-grammar-without-actions/3.3
  * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
  */
 

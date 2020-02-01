@@ -30,7 +30,7 @@
  * Developed by : Bart Kiers, bart@big-o.nl
  *
  * Project      : an ANTLR4 grammar for Tiny Python without embedded actions
- *                https://github.com/RobEin/python3-parser/tree/master/tiny%20grammar%20without%20actions
+ *                https://github.com/RobEin/python3-parser/tree/master/tiny-grammar-without-actions
  * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
  */
 
