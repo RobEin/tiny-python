@@ -76,11 +76,11 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
             return new CommonToken(EOF, "<EOF>"); // processing of the input stream until the first returning EOF
         }
 
-        final boolean isFirstCharOfInputSpaceOrTAB = getCharIndex() == 0 && _input.getText(new Interval(0, 0)).trim().isEmpty();
+        final boolean atStartOfInputAndFirstCharIsSpaceOrTab = getCharIndex() == 0 && _input.getText(new Interval(0, 0)).trim().isEmpty();
         Token currentToken;
         while (true) {
             currentToken = super.nextToken(); // get the next token from the input stream
-            if (isFirstCharOfInputSpaceOrTAB) { // We're at the first line of the input starting with a space or a TAB
+            if (atStartOfInputAndFirstCharIsSpaceOrTab) { // We're at the start of the input starting with a space or a tab
                 this.insertLeadingTokens(currentToken.getType(), currentToken.getStartIndex()); // We need an 'unexpected indent' error if the first token is visible
             }
 
