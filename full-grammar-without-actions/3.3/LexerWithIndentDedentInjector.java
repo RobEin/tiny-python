@@ -46,9 +46,6 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
     // ************************************************************************************************
     // **** THE FOLLOWING SECTION ALSO CAN BE USED IN THE @lexer::members{} SECTION OF THE GRAMMAR ****
     // ************************************************************************************************
-    // Is the first character of the input space or TAB?
-    private final boolean isFirstCharOfInputSpaceOrTAB = _input.getText(new Interval(0, 0)).trim().isEmpty();
-
     // The stack that keeps track of the indentation lengths
     private Stack<Integer> indentLengths = new Stack<>() {{ push(0); }}; // initializing with default 0 indentation length
     // A queue where extra tokens are pushed on
@@ -79,6 +76,7 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
             return new CommonToken(EOF, "<EOF>"); // processing of the input stream until the first returning EOF
         }
 
+        final boolean isFirstCharOfInputSpaceOrTAB = getCharIndex() == 0 && _input.getText(new Interval(0, 0)).trim().isEmpty();
         Token currentToken;
         while (true) {
             currentToken = super.nextToken(); // get the next token from the input stream
