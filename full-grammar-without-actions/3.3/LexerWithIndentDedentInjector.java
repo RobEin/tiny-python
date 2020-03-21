@@ -48,8 +48,8 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
     // ************************************************************************************************
     // The stack that keeps track of the indentation lengths
     private Stack<Integer> indentLengths = new Stack<>() {{ push(0); }}; // initializing with default 0 indentation length
-    // A queue where extra tokens are pushed on
-    private Deque<Token> pendingTokens = new ArrayDeque<>();
+    // A linked list where extra tokens are pushed on
+    private LinkedList<Token> pendingTokens = new LinkedList<>();
     // A token that stores the last pending token (including the inserted INDENT/DEDENT/NEWLINE tokens also)
     private Token lastPendingToken;
 
@@ -58,7 +58,7 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
 
     // Was there space char in the indentations?
     private boolean wasSpaceIndentation = false;
-    // Was there TAB char in the indentations?
+    // Was there tab char in the indentations?
     private boolean wasTabIndentation = false;
 
     // A String list that stores the lexer warnings
@@ -76,11 +76,11 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
             return new CommonToken(EOF, "<EOF>"); // processing of the input stream until the first returning EOF
         }
 
-        final boolean atStartOfInputAndFirstCharIsSpaceOrTab = getCharIndex() == 0 && _input.getText(new Interval(0, 0)).trim().isEmpty();
+        final boolean atStartOfInputAndFirstCharIsSpaceOrTab = getCharIndex() == 0 && _input.getText(new Interval(0, 0)).trim().length() == 0;
         Token currentToken;
         while (true) {
             currentToken = super.nextToken(); // get the next token from the input stream
-            if (atStartOfInputAndFirstCharIsSpaceOrTab) { // We're at the start of the input starting with a space or a tab
+            if (atStartOfInputAndFirstCharIsSpaceOrTab) { // We're at the start of the input starting with a space or a tab (whitespace)
                 this.insertLeadingTokens(currentToken.getType(), currentToken.getStartIndex()); // We need an 'unexpected indent' error if the first token is visible
             }
 
@@ -114,8 +114,8 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
                     }
                     break;
                 case EOF:
-                    if ( !this.indentLengths.isEmpty()) {
-                        this.insertTrailingTokens(this.lastPendingToken.getType()); // indentLengths stack wil be empty
+                    if (this.indentLengths.size() > 0) {
+                        this.insertTrailingTokens(this.lastPendingToken.getType()); // indentLengths stack will be empty
                         this.pendingTokens.addLast(currentToken); // insert the current EOF token
                         this.checkSpaceAndTabIndentation();
                     }
@@ -126,7 +126,7 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
             break; // exit from the loop
         }
         this.lastPendingToken = this.pendingTokens.peekLast(); // save the last pending token because the next pollFirst() may remove it
-        return this.pendingTokens.pollFirst(); // append a token to the token stream until the first returning EOF
+        return this.pendingTokens.pollFirst(); // append the token stream with a token until the first returning EOF
     }
 
     private void insertLeadingTokens(int type, int startIndex) {
