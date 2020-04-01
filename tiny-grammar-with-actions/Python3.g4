@@ -53,7 +53,7 @@ import java.util.*;
 // this embedded code section will be copied to the generated file: Python3Lexer.java
 @lexer::members {
 // The stack that keeps track of the indentation lengths
-private Stack<Integer> indentLengths = new Stack<>() {{ push(0); }}; // initializing with default 0 indentation length
+private Stack<Integer> indentLengths = new Stack<>();
 // A linked list where extra tokens are pushed on
 private LinkedList<Token> pendingTokens = new LinkedList<>();
 // A token that stores the last pending token (including the inserted INDENT/DEDENT/NEWLINE tokens also)
@@ -82,11 +82,16 @@ public Token nextToken() {
 		return new CommonToken(EOF, "<EOF>"); // processing of the input stream until the first returning EOF
 	}
 
-	final boolean atStartOfInputAndFirstCharIsSpaceOrTab = getCharIndex() == 0 && _input.getText(new Interval(0, 0)).trim().length() == 0;
+	boolean atStartOfInputAndFirstCharIsSpaceOrTab = false;
+	if (getCharIndex() == 0) { // We're at the start of the input
+		atStartOfInputAndFirstCharIsSpaceOrTab = _input.getText(new Interval(0, 0)).trim().length() == 0; // first char of the input is whitespace
+		indentLengths.push(0); // initialize with default 0 indentation length
+	}
+
 	Token currentToken;
 	while (true) {
 		currentToken = super.nextToken(); // get the next token from the input stream
-		if (atStartOfInputAndFirstCharIsSpaceOrTab) { // We're at the start of the input starting with a space or a tab (whitespace)
+		if (atStartOfInputAndFirstCharIsSpaceOrTab) {
 			this.insertLeadingTokens(currentToken.getType(), currentToken.getStartIndex()); // We need an 'unexpected indent' error if the first token is visible
 		}
 
@@ -136,7 +141,7 @@ public Token nextToken() {
 }
 
 private void insertLeadingTokens(int type, int startIndex) {
-	if (type != NEWLINE && type != EOF) { // The first token is visible, so We insert a NEWLINE and an INDENT token before it to raise an 'unexpected indent' error by the parser later
+	if (type != NEWLINE && type != EOF) { // The first token is visible, so We insert a NEWLINE and an INDENT token before it to raise an 'unexpected indent' error later by the parser
 		this.insertToken(0, startIndex - 1, "<inserted leading NEWLINE>" + " ".repeat(startIndex), NEWLINE, 1, 0);
 		this.insertToken(startIndex, startIndex - 1, "<" + TEXT_INSERTED_INDENT + ", " + this.getIndentationDescription(startIndex) + ">", Python3Parser.INDENT, 1, startIndex);
 		this.indentLengths.push(startIndex);
@@ -145,7 +150,6 @@ private void insertLeadingTokens(int type, int startIndex) {
 
 private void insertIndentDedentTokens(int currentIndentLength) {
 	int previousIndentLength = this.indentLengths.peek();
-
 	if (currentIndentLength > previousIndentLength) { // insert an INDENT token
 		this.insertToken("<" + TEXT_INSERTED_INDENT + ", " + this.getIndentationDescription(currentIndentLength) + ">", Python3Parser.INDENT);
 		this.indentLengths.push(currentIndentLength);
@@ -156,7 +160,7 @@ private void insertIndentDedentTokens(int currentIndentLength) {
 			if (currentIndentLength <= previousIndentLength) {
 				this.insertToken("<inserted DEDENT, " + this.getIndentationDescription(previousIndentLength) + ">", Python3Parser.DEDENT);
 			} else {
-				this.insertToken("<inserted inconsistent DEDENT, " + this.getIndentationDescription(currentIndentLength) + ">", Python3Parser.DEDENT);
+				this.insertToken("<inserted inconsistent DEDENT, " + "length=" + currentIndentLength + ">", Python3Parser.DEDENT);
 				this.errors.add(TEXT_LEXER + "line " + getLine() + ":" + getCharPositionInLine() + "\t IndentationError: unindent does not match any outer indentation level");
 			}
 		}
@@ -169,13 +173,13 @@ private void insertTrailingTokens(int type) {
 	}
 
 	this.indentLengths.removeElementAt(0); // remove the default 0 indentation length
-	while ( !this.indentLengths.isEmpty()) { // Now insert as much trailing DEDENT tokens as needed
+	while (!this.indentLengths.isEmpty()) { // Now insert as much trailing DEDENT tokens as needed
 		this.insertToken("<inserted trailing DEDENT, " + this.getIndentationDescription(this.indentLengths.pop()) + ">", Python3Parser.DEDENT);
 	}
 }
 
 private String getIndentationDescription(int lengthOfIndent) {
-	return "length=" + lengthOfIndent + ", level=" + (this.indentLengths.size());
+	return "length=" + lengthOfIndent + ", level=" + this.indentLengths.size();
 }
 
 private void insertToken(String text, int type) {
@@ -201,7 +205,6 @@ private void insertToken(int startIndex, int stopIndex, String text, int type, i
 //  -- https://docs.python.org/3.1/reference/lexical_analysis.html#indentation
 private int getIndentationLength(String textOfMatchedNEWLINE) {
 	int count = 0;
-
 	for (char ch : textOfMatchedNEWLINE.toCharArray()) {
 		switch (ch) {
 			case ' ': // A normal space char
