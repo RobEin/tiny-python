@@ -78,121 +78,121 @@ public static final String TEXT_INSERTED_INDENT = "inserted INDENT";
 
 @Override
 public Token nextToken() {
-	if (_input.size() == 0) {
-		return new CommonToken(EOF, "<EOF>"); // processing of the input stream until the first returning EOF
-	}
+    if (_input.size() == 0) {
+        return new CommonToken(EOF, "<EOF>"); // processing of the input stream until the first returning EOF
+    }
 
-	boolean atStartOfInputAndFirstCharIsSpaceOrTab = false;
-	if (getCharIndex() == 0) { // We're at the start of the input
-		atStartOfInputAndFirstCharIsSpaceOrTab = _input.getText(new Interval(0, 0)).trim().length() == 0; // first char of the input is whitespace
-		indentLengths.push(0); // initialize with default 0 indentation length
-	}
+    boolean atStartOfInputAndFirstCharIsSpaceOrTab = false;
+    if (getCharIndex() == 0) { // We're at the start of the input
+        atStartOfInputAndFirstCharIsSpaceOrTab = _input.getText(new Interval(0, 0)).trim().length() == 0; // first char of the input is whitespace
+        indentLengths.push(0); // initialize with default 0 indentation length
+    }
 
-	Token currentToken;
-	while (true) {
-		currentToken = super.nextToken(); // get the next token from the input stream
-		if (atStartOfInputAndFirstCharIsSpaceOrTab) {
-			this.insertLeadingTokens(currentToken.getType(), currentToken.getStartIndex()); // We need an 'unexpected indent' error if the first token is visible
-		}
+    Token currentToken;
+    while (true) {
+        currentToken = super.nextToken(); // get the next token from the input stream
+        if (atStartOfInputAndFirstCharIsSpaceOrTab) {
+            this.insertLeadingTokens(currentToken.getType(), currentToken.getStartIndex()); // We need an 'unexpected indent' error if the first token is visible
+        }
 
-		switch (currentToken.getType()) {
-			case OPEN_PAREN:
-			case OPEN_BRACK:
-			case OPEN_BRACE:
-				this.opened++;
-				this.pendingTokens.addLast(currentToken);  // insert the current open parentheses or square bracket or curly brace token
-				break;
-			case CLOSE_PAREN:
-			case CLOSE_BRACK:
-			case CLOSE_BRACE:
-				this.opened--;
-				this.pendingTokens.addLast(currentToken);  // insert the current close parentheses or square bracket or curly brace token
-				break;
-			case NEWLINE:
-				if (this.opened > 0) {                             //*** https://docs.python.org/3/reference/lexical_analysis.html#implicit-line-joining
-					continue;  // We're inside an implicit line joining section, skip the NEWLINE token
-				} else {
-					switch (_input.LA(1) /* next symbol */) {    //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/IntStream.html#LA(int)
-						case '\r':
-						case '\n':
-						case '\f':
-						case '#':                                  //*** https://docs.python.org/3/reference/lexical_analysis.html#blank-lines
-							continue;  // We're on a blank line or before a comment, skip the NEWLINE token
-						default:
-							this.pendingTokens.addLast(currentToken); // insert the current NEWLINE token
-							this.insertIndentDedentTokens(this.getIndentationLength(currentToken.getText())); //*** https://docs.python.org/3/reference/lexical_analysis.html#indentation
-					}
-				}
-				break;
-			case EOF:
-				if (this.indentLengths.size() > 0) {
-					this.insertTrailingTokens(this.lastPendingToken.getType()); // indentLengths stack will be empty
-					this.pendingTokens.addLast(currentToken); // insert the current EOF token
-					this.checkSpaceAndTabIndentation();
-				}
-				break;
-			default:
-				this.pendingTokens.addLast(currentToken); // insert the current token
-		}
-		break; // exit from the loop
-	}
-	this.lastPendingToken = this.pendingTokens.peekLast(); // save the last pending token because the next pollFirst() may remove it
-	return this.pendingTokens.pollFirst(); // append the token stream with a token until the first returning EOF
+        switch (currentToken.getType()) {
+            case OPEN_PAREN:
+            case OPEN_BRACK:
+            case OPEN_BRACE:
+                this.opened++;
+                this.pendingTokens.addLast(currentToken);  // insert the current open parentheses or square bracket or curly brace token
+                break;
+            case CLOSE_PAREN:
+            case CLOSE_BRACK:
+            case CLOSE_BRACE:
+                this.opened--;
+                this.pendingTokens.addLast(currentToken);  // insert the current close parentheses or square bracket or curly brace token
+                break;
+            case NEWLINE:
+                if (this.opened > 0) {                             //*** https://docs.python.org/3/reference/lexical_analysis.html#implicit-line-joining
+                    continue;  // We're inside an implicit line joining section, skip the NEWLINE token
+                } else {
+                    switch (_input.LA(1) /* next symbol */) {    //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/IntStream.html#LA(int)
+                        case '\r':
+                        case '\n':
+                        case '\f':
+                        case '#':                                  //*** https://docs.python.org/3/reference/lexical_analysis.html#blank-lines
+                            continue;  // We're on a blank line or before a comment, skip the NEWLINE token
+                        default:
+                            this.pendingTokens.addLast(currentToken); // insert the current NEWLINE token
+                            this.insertIndentDedentTokens(this.getIndentationLength(currentToken.getText())); //*** https://docs.python.org/3/reference/lexical_analysis.html#indentation
+                    }
+                }
+                break;
+            case EOF:
+                if (this.indentLengths.size() > 0) {
+                    this.insertTrailingTokens(this.lastPendingToken.getType()); // indentLengths stack will be empty
+                    this.pendingTokens.addLast(currentToken); // insert the current EOF token
+                    this.checkSpaceAndTabIndentation();
+                }
+                break;
+            default:
+                this.pendingTokens.addLast(currentToken); // insert the current token
+        }
+        break; // exit from the loop
+    }
+    this.lastPendingToken = this.pendingTokens.peekLast(); // save the last pending token because the next pollFirst() may remove it
+    return this.pendingTokens.pollFirst(); // append the token stream with a token until the first returning EOF
 }
 
 private void insertLeadingTokens(int type, int startIndex) {
-	if (type != NEWLINE && type != EOF) { // The first token is visible, so We insert a NEWLINE and an INDENT token before it to raise an 'unexpected indent' error later by the parser
-		this.insertToken(0, startIndex - 1, "<inserted leading NEWLINE>" + " ".repeat(startIndex), NEWLINE, 1, 0);
-		this.insertToken(startIndex, startIndex - 1, "<" + TEXT_INSERTED_INDENT + ", " + this.getIndentationDescription(startIndex) + ">", Python3Parser.INDENT, 1, startIndex);
-		this.indentLengths.push(startIndex);
-	}
+    if (type != NEWLINE && type != EOF) { // The first token is visible, so We insert a NEWLINE and an INDENT token before it to raise an 'unexpected indent' error later by the parser
+        this.insertToken(0, startIndex - 1, "<inserted leading NEWLINE>" + " ".repeat(startIndex), NEWLINE, 1, 0);
+        this.insertToken(startIndex, startIndex - 1, "<" + TEXT_INSERTED_INDENT + ", " + this.getIndentationDescription(startIndex) + ">", Python3Parser.INDENT, 1, startIndex);
+        this.indentLengths.push(startIndex);
+    }
 }
 
 private void insertIndentDedentTokens(int currentIndentLength) {
-	int previousIndentLength = this.indentLengths.peek();
-	if (currentIndentLength > previousIndentLength) { // insert an INDENT token
-		this.insertToken("<" + TEXT_INSERTED_INDENT + ", " + this.getIndentationDescription(currentIndentLength) + ">", Python3Parser.INDENT);
-		this.indentLengths.push(currentIndentLength);
-	} else {
-		while (currentIndentLength < previousIndentLength) {   // More than 1 DEDENT token may be inserted
-			this.indentLengths.pop();
-			previousIndentLength = this.indentLengths.peek();
-			if (currentIndentLength <= previousIndentLength) {
-				this.insertToken("<inserted DEDENT, " + this.getIndentationDescription(previousIndentLength) + ">", Python3Parser.DEDENT);
-			} else {
-				this.insertToken("<inserted inconsistent DEDENT, " + "length=" + currentIndentLength + ">", Python3Parser.DEDENT);
-				this.errors.add(TEXT_LEXER + "line " + getLine() + ":" + getCharPositionInLine() + "\t IndentationError: unindent does not match any outer indentation level");
-			}
-		}
-	}
+    int previousIndentLength = this.indentLengths.peek();
+    if (currentIndentLength > previousIndentLength) { // insert an INDENT token
+        this.insertToken("<" + TEXT_INSERTED_INDENT + ", " + this.getIndentationDescription(currentIndentLength) + ">", Python3Parser.INDENT);
+        this.indentLengths.push(currentIndentLength);
+    } else {
+        while (currentIndentLength < previousIndentLength) {   // More than 1 DEDENT token may be inserted
+            this.indentLengths.pop();
+            previousIndentLength = this.indentLengths.peek();
+            if (currentIndentLength <= previousIndentLength) {
+                this.insertToken("<inserted DEDENT, " + this.getIndentationDescription(previousIndentLength) + ">", Python3Parser.DEDENT);
+            } else {
+                this.insertToken("<inserted inconsistent DEDENT, " + "length=" + currentIndentLength + ">", Python3Parser.DEDENT);
+                this.errors.add(TEXT_LEXER + "line " + getLine() + ":" + getCharPositionInLine() + "\t IndentationError: unindent does not match any outer indentation level");
+            }
+        }
+    }
 }
 
 private void insertTrailingTokens(int type) {
-	if (type != NEWLINE && type != Python3Parser.DEDENT) { // If the last pending token was not a NEWLINE and not a DEDENT then
-		this.insertToken("<inserted trailing NEWLINE>", NEWLINE); // insert an extra trailing NEWLINE token that serves as the end of the statement
-	}
+    if (type != NEWLINE && type != Python3Parser.DEDENT) { // If the last pending token was not a NEWLINE and not a DEDENT then
+        this.insertToken("<inserted trailing NEWLINE>", NEWLINE); // insert an extra trailing NEWLINE token that serves as the end of the statement
+    }
 
-	this.indentLengths.removeElementAt(0); // remove the default 0 indentation length
-	while (!this.indentLengths.isEmpty()) { // Now insert as much trailing DEDENT tokens as needed
-		this.insertToken("<inserted trailing DEDENT, " + this.getIndentationDescription(this.indentLengths.pop()) + ">", Python3Parser.DEDENT);
-	}
+    this.indentLengths.removeElementAt(0); // remove the default 0 indentation length
+    while (!this.indentLengths.isEmpty()) { // Now insert as much trailing DEDENT tokens as needed
+        this.insertToken("<inserted trailing DEDENT, " + this.getIndentationDescription(this.indentLengths.pop()) + ">", Python3Parser.DEDENT);
+    }
 }
 
 private String getIndentationDescription(int lengthOfIndent) {
-	return "length=" + lengthOfIndent + ", level=" + this.indentLengths.size();
+    return "length=" + lengthOfIndent + ", level=" + this.indentLengths.size();
 }
 
 private void insertToken(String text, int type) {
-	final int startIndex = _tokenStartCharIndex + getText().length(); //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/Lexer.html#_tokenStartCharIndex
-	this.insertToken(startIndex, startIndex - 1, text, type, getLine(), getCharPositionInLine());
+    final int startIndex = _tokenStartCharIndex + getText().length(); //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/Lexer.html#_tokenStartCharIndex
+    this.insertToken(startIndex, startIndex - 1, text, type, getLine(), getCharPositionInLine());
 }
 
 private void insertToken(int startIndex, int stopIndex, String text, int type, int line, int charPositionInLine) {
-	CommonToken token = new CommonToken(_tokenFactorySourcePair, type, DEFAULT_TOKEN_CHANNEL, startIndex, stopIndex); //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/CommonToken.html
-	token.setText(text);
-	token.setLine(line);
-	token.setCharPositionInLine(charPositionInLine);
-	this.pendingTokens.addLast(token);
+    CommonToken token = new CommonToken(_tokenFactorySourcePair, type, DEFAULT_TOKEN_CHANNEL, startIndex, stopIndex); //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/CommonToken.html
+    token.setText(text);
+    token.setLine(line);
+    token.setCharPositionInLine(charPositionInLine);
+    this.pendingTokens.addLast(token);
 }
 
 // Calculates the indentation of the provided spaces, taking the
@@ -204,34 +204,34 @@ private void insertToken(int startIndex, int stopIndex, String text, int type, i
 //
 //  -- https://docs.python.org/3.1/reference/lexical_analysis.html#indentation
 private int getIndentationLength(String textOfMatchedNEWLINE) {
-	int count = 0;
-	for (char ch : textOfMatchedNEWLINE.toCharArray()) {
-		switch (ch) {
-			case ' ': // A normal space char
-				this.wasSpaceIndentation = true;
-				count++;
-				break;
-			case '\t':
-				this.wasTabIndentation = true;
-				count += 8 - (count % 8);
-				break;
-		}
-	}
-	return count;
+    int count = 0;
+    for (char ch : textOfMatchedNEWLINE.toCharArray()) {
+        switch (ch) {
+            case ' ': // A normal space char
+                this.wasSpaceIndentation = true;
+                count++;
+                break;
+            case '\t':
+                this.wasTabIndentation = true;
+                count += 8 - (count % 8);
+                break;
+        }
+    }
+    return count;
 }
 
 private void checkSpaceAndTabIndentation() {
-	if (this.wasSpaceIndentation && this.wasTabIndentation) {
-		this.warnings.add("Mixture of space and tab were used for indentation.");
-	}
+    if (this.wasSpaceIndentation && this.wasTabIndentation) {
+        this.warnings.add("Mixture of space and tab were used for indentation.");
+    }
 }
 
 public List<String> getWarnings() {
-	return this.warnings;
+    return this.warnings;
 }
 
 public List<String> getErrorMessages() {
-	return this.errors;
+    return this.errors;
 }
 }
 
