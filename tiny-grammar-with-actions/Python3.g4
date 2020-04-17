@@ -56,8 +56,8 @@ import java.util.*;
 private Stack<Integer> indentLengths = new Stack<>();
 // A linked list where extra tokens are pushed on
 private LinkedList<Token> pendingTokens = new LinkedList<>();
-// A token that stores the last pending token (including the inserted INDENT/DEDENT/NEWLINE tokens also)
-private Token lastPendingToken;
+// An int that stores the last pending token type (including the inserted INDENT/DEDENT/NEWLINE token types also)
+private int lastPendingTokenType;
 
 // The amount of opened braces, brackets and parenthesis
 private int opened = 0;
@@ -80,68 +80,78 @@ public static final String TEXT_INSERTED_INDENT = "inserted INDENT";
 public Token nextToken() {
     if (_input.size() == 0) {
         return new CommonToken(EOF, "<EOF>"); // processing of the input stream until the first returning EOF
+    } else {
+        checkNextToken();
+        return this.pendingTokens.pollFirst(); // append the token stream with the upcoming pending token until the first returning EOF
     }
+}
 
-    boolean atStartOfInputAndFirstCharIsSpaceOrTab = false;
-    if (getCharIndex() == 0) { // We're at the start of the input
-        atStartOfInputAndFirstCharIsSpaceOrTab = _input.getText(new Interval(0, 0)).trim().length() == 0; // first char of the input is whitespace
-        indentLengths.push(0); // initialize with default 0 indentation length
+private void checkNextToken() {
+    if (this.indentLengths != null) { // after the first EOF token the indentLengths stack will be set to null
+        final int startingSize = this.pendingTokens.size();
+        Token currentToken;
+        do {
+            currentToken = super.nextToken(); // get the next token from the input stream
+            checkStartOfInput(currentToken);
+            switch (currentToken.getType()) {
+                case OPEN_PAREN:
+                case OPEN_BRACK:
+                case OPEN_BRACE:
+                    this.opened++;
+                    this.pendingTokens.addLast(currentToken);
+                    break;
+                case CLOSE_PAREN:
+                case CLOSE_BRACK:
+                case CLOSE_BRACE:
+                    this.opened--;
+                    this.pendingTokens.addLast(currentToken);
+                    break;
+                case NEWLINE:
+                    handleNewLineToken(currentToken);
+                    break;
+                case EOF:
+                    handleEofToken(currentToken); // indentLengths stack will be set to null
+                    break;
+                default:
+                    this.pendingTokens.addLast(currentToken); // insert the current token
+            }
+        } while (this.pendingTokens.size() == startingSize);
+        this.lastPendingTokenType = currentToken.getType();
     }
+}
 
-    Token currentToken;
-    while (true) {
-        currentToken = super.nextToken(); // get the next token from the input stream
-        if (atStartOfInputAndFirstCharIsSpaceOrTab) {
-            this.insertLeadingTokens(currentToken.getType(), currentToken.getStartIndex()); // We need an 'unexpected indent' error if the first token is visible
+private void checkStartOfInput(Token currentToken) {
+    if (indentLengths.size() == 0) { // We're at the first token
+        indentLengths.push(0);  // initialize the stack with default 0 indentation length
+        if (_input.getText(new Interval(0, 0)).trim().length() == 0) { // the first char of the input is a whitespace
+            this.insertLeadingTokens(currentToken.getType(), currentToken.getStartIndex());
         }
+    }
+}
 
-        switch (currentToken.getType()) {
-            case OPEN_PAREN:
-            case OPEN_BRACK:
-            case OPEN_BRACE:
-                this.opened++;
-                this.pendingTokens.addLast(currentToken);  // insert the current open parentheses or square bracket or curly brace token
-                break;
-            case CLOSE_PAREN:
-            case CLOSE_BRACK:
-            case CLOSE_BRACE:
-                this.opened--;
-                this.pendingTokens.addLast(currentToken);  // insert the current close parentheses or square bracket or curly brace token
-                break;
-            case NEWLINE:
-                if (this.opened > 0) {                             //*** https://docs.python.org/3/reference/lexical_analysis.html#implicit-line-joining
-                    continue;  // We're inside an implicit line joining section, skip the NEWLINE token
-                } else {
-                    switch (_input.LA(1) /* next symbol */) {    //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/IntStream.html#LA(int)
-                        case '\r':
-                        case '\n':
-                        case '\f':
-                        case '#':                                  //*** https://docs.python.org/3/reference/lexical_analysis.html#blank-lines
-                            continue;  // We're on a blank line or before a comment, skip the NEWLINE token
-                        default:
-                            this.pendingTokens.addLast(currentToken); // insert the current NEWLINE token
-                            this.insertIndentDedentTokens(this.getIndentationLength(currentToken.getText())); //*** https://docs.python.org/3/reference/lexical_analysis.html#indentation
-                    }
-                }
-                break;
-            case EOF:
-                if (this.indentLengths.size() > 0) {
-                    this.insertTrailingTokens(this.lastPendingToken.getType()); // indentLengths stack will be empty
-                    this.pendingTokens.addLast(currentToken); // insert the current EOF token
-                    this.checkSpaceAndTabIndentation();
-                }
-                break;
+private void handleNewLineToken(Token currentToken) {
+    if (this.opened == 0) {                            //*** https://docs.python.org/3/reference/lexical_analysis.html#implicit-line-joining
+        switch (_input.LA(1) /* next symbol */) {    //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/IntStream.html#LA(int)
+            case '\r':
+            case '\n':
+            case '\f':
+            case '#':                                  //*** https://docs.python.org/3/reference/lexical_analysis.html#blank-lines
+                return;  // We're on a blank line or before a comment, skip the NEWLINE token
             default:
-                this.pendingTokens.addLast(currentToken); // insert the current token
+                this.pendingTokens.addLast(currentToken); // insert the current NEWLINE token
+                this.insertIndentDedentTokens(this.getIndentationLength(currentToken.getText())); //*** https://docs.python.org/3/reference/lexical_analysis.html#indentation
         }
-        break; // exit from the loop
     }
-    this.lastPendingToken = this.pendingTokens.peekLast(); // save the last pending token because the next pollFirst() may remove it
-    return this.pendingTokens.pollFirst(); // append the token stream with a token until the first returning EOF
+}
+
+private void handleEofToken(Token currentToken) {
+    this.insertTrailingTokens(this.lastPendingTokenType); // indentLengths stack will be null!
+    this.pendingTokens.addLast(currentToken); // insert the current EOF token
+    this.checkSpaceAndTabIndentation();
 }
 
 private void insertLeadingTokens(int type, int startIndex) {
-    if (type != NEWLINE && type != EOF) { // The first token is visible, so We insert a NEWLINE and an INDENT token before it to raise an 'unexpected indent' error later by the parser
+    if (type != NEWLINE && type != EOF) { // (after a whitespace) The first token is visible, so We insert a NEWLINE and an INDENT token before it to raise an 'unexpected indent' error later by the parser
         this.insertToken(0, startIndex - 1, "<inserted leading NEWLINE>" + " ".repeat(startIndex), NEWLINE, 1, 0);
         this.insertToken(startIndex, startIndex - 1, "<" + TEXT_INSERTED_INDENT + ", " + this.getIndentationDescription(startIndex) + ">", Python3Parser.INDENT, 1, startIndex);
         this.indentLengths.push(startIndex);
@@ -172,10 +182,10 @@ private void insertTrailingTokens(int type) {
         this.insertToken("<inserted trailing NEWLINE>", NEWLINE); // insert an extra trailing NEWLINE token that serves as the end of the statement
     }
 
-    this.indentLengths.removeElementAt(0); // remove the default 0 indentation length
-    while (!this.indentLengths.isEmpty()) { // Now insert as much trailing DEDENT tokens as needed
+    while (this.indentLengths.size() > 1) { // Now insert as much trailing DEDENT tokens as needed
         this.insertToken("<inserted trailing DEDENT, " + this.getIndentationDescription(this.indentLengths.pop()) + ">", Python3Parser.DEDENT);
     }
+    this.indentLengths = null; // there will be no more token read from the input stream
 }
 
 private String getIndentationDescription(int lengthOfIndent) {
