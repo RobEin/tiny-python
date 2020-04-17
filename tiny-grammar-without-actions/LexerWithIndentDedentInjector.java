@@ -26,7 +26,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  * Project      : Python3 Indent/Dedent handler for ANTLR4 grammars
- *                https://github.com/antlr/grammars-v4/tree/master/python/python3_without_actions
+ *                https://github.com/RobEin/python3-parser/tree/master/tiny-grammar-without-actions
  * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
  */
 
