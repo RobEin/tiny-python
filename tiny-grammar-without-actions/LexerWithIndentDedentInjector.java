@@ -77,71 +77,72 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
             return new CommonToken(EOF, "<EOF>"); // processing of the input stream until the first returning EOF
         } else {
             checkNextToken();
-            return this.pendingTokens.pollFirst(); // append the token stream with the upcoming pending token until the first returning EOF
+            return this.pendingTokens.pollFirst(); // append the token stream with the upcoming pending token
         }
     }
 
     private void checkNextToken() {
-        if (this.indentLengths != null) { // after the first EOF token the indentLengths stack will be set to null
-            final int startingSize = this.pendingTokens.size();
-            Token currentToken;
+        if (this.indentLengths != null) { // after the first incoming EOF token the indentLengths stack will be set to null
+            final int startSize = this.pendingTokens.size();
+            Token curToken;
             do {
-                currentToken = super.nextToken(); // get the next token from the input stream
-                checkStartOfInput(currentToken);
-                switch (currentToken.getType()) {
+                curToken = super.nextToken(); // get the next token from the input stream
+                checkStartOfInput(curToken);
+                switch (curToken.getType()) {
                     case OPEN_PAREN:
                     case OPEN_BRACK:
                     case OPEN_BRACE:
                         this.opened++;
-                        this.pendingTokens.addLast(currentToken);
+                        this.pendingTokens.addLast(curToken);
                         break;
                     case CLOSE_PAREN:
                     case CLOSE_BRACK:
                     case CLOSE_BRACE:
                         this.opened--;
-                        this.pendingTokens.addLast(currentToken);
+                        this.pendingTokens.addLast(curToken);
                         break;
                     case NEWLINE:
-                        handleNewLineToken(currentToken);
+                        handleNewLineToken(curToken);
                         break;
                     case EOF:
-                        handleEofToken(currentToken); // indentLengths stack will be set to null
+                        handleEofToken(curToken); // indentLengths stack will be set to null
                         break;
                     default:
-                        this.pendingTokens.addLast(currentToken); // insert the current token
+                        this.pendingTokens.addLast(curToken); // insert the current token
                 }
-            } while (this.pendingTokens.size() == startingSize);
-            this.lastPendingTokenType = currentToken.getType();
+            } while (this.pendingTokens.size() == startSize);
+            this.lastPendingTokenType = curToken.getType();
         }
     }
 
-    private void checkStartOfInput(Token currentToken) {
+    private void checkStartOfInput(Token curToken) {
         if (indentLengths.size() == 0) { // We're at the first token
             indentLengths.push(0);  // initialize the stack with default 0 indentation length
             if (_input.getText(new Interval(0, 0)).trim().length() == 0) { // the first char of the input is a whitespace
-                this.insertLeadingTokens(currentToken.getType(), currentToken.getStartIndex());
+                this.insertLeadingTokens(curToken.getType(), curToken.getStartIndex());
             }
         }
     }
 
-    private void handleNewLineToken(Token currentToken) {
-        if (this.opened == 0) {                            //*** https://docs.python.org/3/reference/lexical_analysis.html#implicit-line-joining
-            switch (_input.LA(1) /* next symbol */) {    //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/IntStream.html#LA(int)
+    private void handleNewLineToken(Token curToken) {
+        if (this.opened == 0) { //*** https://docs.python.org/3/reference/lexical_analysis.html#implicit-line-joining
+            switch (_input.LA(1) /* next symbol */) { //*** https://www.antlr.org/api/Java/org/antlr/v4/runtime/IntStream.html#LA(int)
                 case '\r':
                 case '\n':
                 case '\f':
-                case '#':                                  //*** https://docs.python.org/3/reference/lexical_analysis.html#blank-lines
-                    return;  // We're on a blank line or before a comment, skip the NEWLINE token
+                case '#':   //*** https://docs.python.org/3/reference/lexical_analysis.html#blank-lines
+                case EOF:   // skip the trailing inconsistent dedent or the trailing unexpected indent (or the trailing indent)
+                    return; // We're on a blank line or before a comment or before the EOF, skip the NEWLINE token
                 default:
-                    this.pendingTokens.addLast(currentToken); // insert the current NEWLINE token
-                    this.insertIndentDedentTokens(this.getIndentationLength(currentToken.getText())); //*** https://docs.python.org/3/reference/lexical_analysis.html#indentation
+                    this.pendingTokens.addLast(curToken); // insert the current NEWLINE token
+                    this.insertIndentDedentTokens(this.getIndentationLength(curToken.getText())); //*** https://docs.python.org/3/reference/lexical_analysis.html#indentation
             }
         }
     }
 
-    private void handleEofToken(Token currentToken) {
+    private void handleEofToken(Token curToken) {
         this.insertTrailingTokens(this.lastPendingTokenType); // indentLengths stack will be null!
-        this.pendingTokens.addLast(currentToken); // insert the current EOF token
+        this.pendingTokens.addLast(curToken); // insert the current EOF token
         this.checkSpaceAndTabIndentation();
     }
 
@@ -153,19 +154,19 @@ public class LexerWithIndentDedentInjector extends Python3Lexer { //*** https://
         }
     }
 
-    private void insertIndentDedentTokens(int currentIndentLength) {
-        int previousIndentLength = this.indentLengths.peek();
-        if (currentIndentLength > previousIndentLength) { // insert an INDENT token
-            this.insertToken("<" + TEXT_INSERTED_INDENT + ", " + this.getIndentationDescription(currentIndentLength) + ">", Python3Parser.INDENT);
-            this.indentLengths.push(currentIndentLength);
+    private void insertIndentDedentTokens(int curIndentLength) {
+        int prevIndentLength = this.indentLengths.peek();
+        if (curIndentLength > prevIndentLength) { // insert an INDENT token
+            this.insertToken("<" + TEXT_INSERTED_INDENT + ", " + this.getIndentationDescription(curIndentLength) + ">", Python3Parser.INDENT);
+            this.indentLengths.push(curIndentLength);
         } else {
-            while (currentIndentLength < previousIndentLength) {   // More than 1 DEDENT token may be inserted
+            while (curIndentLength < prevIndentLength) {   // More than 1 DEDENT token may be inserted
                 this.indentLengths.pop();
-                previousIndentLength = this.indentLengths.peek();
-                if (currentIndentLength <= previousIndentLength) {
-                    this.insertToken("<inserted DEDENT, " + this.getIndentationDescription(previousIndentLength) + ">", Python3Parser.DEDENT);
+                prevIndentLength = this.indentLengths.peek();
+                if (curIndentLength <= prevIndentLength) {
+                    this.insertToken("<inserted DEDENT, " + this.getIndentationDescription(prevIndentLength) + ">", Python3Parser.DEDENT);
                 } else {
-                    this.insertToken("<inserted inconsistent DEDENT, " + "length=" + currentIndentLength + ">", Python3Parser.DEDENT);
+                    this.insertToken("<inserted inconsistent DEDENT, " + "length=" + curIndentLength + ">", Python3Parser.DEDENT);
                     this.errors.add(TEXT_LEXER + "line " + getLine() + ":" + getCharPositionInLine() + "\t IndentationError: unindent does not match any outer indentation level");
                 }
             }
