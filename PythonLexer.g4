@@ -30,7 +30,7 @@ lexer grammar PythonLexer;
 options { superClass=PythonLexerBase; }
 tokens { INDENT, DEDENT,
 // *** the following tokens are only for compatibility with the PythonLexerBase class ***
-         OPEN_BRACK, CLOSE_BRACK, OPEN_BRACE, CLOSE_BRACE, TYPE_COMMENT
+         LSQB, RSQB, LBRACE, RBRACE, TYPE_COMMENT
 }
 
 /*
@@ -44,8 +44,8 @@ WHILE    : 'while';
 ELIF     : 'elif';
 IF       : 'if';
 
-OPEN_PAREN   : '(';  // LPAR
-CLOSE_PAREN  : ')';  // RPAR
+LPAR         : '(';  // OPEN_PAREN
+RPAR         : ')';  // CLOSE_PAREN
 COLON        : ':';
 PLUS         : '+';
 MINUS        : '-';
