@@ -21,17 +21,20 @@ THE SOFTWARE.
  */
 
  /*
- * Project      : an ANTLR4 lexer grammar for Tiny Python
- *                https://github.com/RobEin/tiny-python
- * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
- */
+  * Project      : an ANTLR4 lexer grammar for Tiny Python
+  *                https://github.com/RobEin/tiny-python
+  * Developed by : Robert Einhorn
+  */
 
 lexer grammar PythonLexer;
 options { superClass=PythonLexerBase; }
-tokens { INDENT, DEDENT }
+tokens { INDENT, DEDENT,
+// *** the following tokens are only for compatibility with the PythonLexerBase class ***
+         OPEN_BRACK, CLOSE_BRACK, OPEN_BRACE, CLOSE_BRACE, TYPE_COMMENT
+}
 
 /*
- * lexer rules    // https://docs.python.org/3/reference/lexical_analysis.html
+ * lexer rules    https://docs.python.org/3/reference/lexical_analysis.html
  */
 
 ELSE     : 'else';
@@ -42,11 +45,7 @@ ELIF     : 'elif';
 IF       : 'if';
 
 OPEN_PAREN   : '(';  // LPAR
-OPEN_BRACK   : '[';  // LSQB        // only for compatibility with PythonLexerBase class
-OPEN_BRACE   : '{';  // LBRACE      // only for compatibility with PythonLexerBase class
 CLOSE_PAREN  : ')';  // RPAR
-CLOSE_BRACK  : ']';  // RSQB        // only for compatibility with PythonLexerBase class
-CLOSE_BRACE  : '}';  // RBRACE      // only for compatibility with PythonLexerBase class
 COLON        : ':';
 PLUS         : '+';
 MINUS        : '-';
@@ -70,12 +69,8 @@ NUMBER
 //    : STRING_LITERAL
 //    ;
 
-TYPE_COMMENT // only for compatibility with PythonLexerBase class
-    : '#' WS? 'type:' WS? ~[\r\n\f]*
-    ;
-
 NEWLINE
-    : OS_INDEPEND_NL
+    : OS_INDEPENDENT_NL
     ;
 
 COMMENT      : '#' ~[\r\n\f]* -> channel(HIDDEN);
@@ -94,7 +89,7 @@ fragment DEC_INTEGER    : NON_ZERO_DIGIT DIGIT* | '0';
 fragment NON_ZERO_DIGIT : [1-9];
 fragment DIGIT          : [0-9];
 
-fragment OS_INDEPEND_NL : '\r'? '\n'; // Unix, Windows
+fragment OS_INDEPENDENT_NL : '\r'? '\n'; // Unix, Windows
 
 fragment ID_CONTINUE
  : ID_START

@@ -23,7 +23,7 @@ THE SOFTWARE.
  /*
  * Project      : an ANTLR4 parser grammar based on the official Python 3.8.12 grammar
  *                https://github.com/RobEin/tiny-python
- * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
+ * Developed by : Robert Einhorn
  */
 
 parser grammar PythonParser; // Tiny Python based on: https://docs.python.org/3.8/reference/grammar.html
