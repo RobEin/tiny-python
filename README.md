@@ -24,4 +24,4 @@ grun Python file_input -tokens test.py
 
 [ANTLR4 parser for Python 3.8](https://github.com/RobEin/ANTLR4-parser-for-Python-3.8)
 
-[ANTLR4 parser for Python 3.11.4](https://github.com/RobEin/ANTLR4-Python-grammar-by-PEG)
+[ANTLR4 parser for Python 3.11.4](https://github.com/RobEin/ANTLR4-Python-parser-by-PEG)
