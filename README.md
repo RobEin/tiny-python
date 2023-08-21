@@ -4,19 +4,6 @@ A considerably stripped down Python grammar for a starter Python (or a Python-li
 The ANTLR4 parser grammar is based on the last "traditional" [Python grammar](https://docs.python.org/3.8/reference/grammar.html) which not yet written in [PEG](https://en.wikipedia.org/wiki/Parsing_expression_grammar).
 
 
-<<<<<<< HEAD
-=======
-### A simple usage example in command line:
-```bash
-antlr4 PythonLexer.g4
-antlr4 PythonParser.g4
-javac *.java
-grun Python file_input -tokens test.py
-grun Python file_input -gui test.py
-```
->>>>>>> c7bec43b28f5267ebda589fa451d43be02c16c12
-
-
 ### Related links:
 [ANTLR 4](https://www.antlr.org/)
 
