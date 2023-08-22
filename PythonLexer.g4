@@ -28,9 +28,10 @@ THE SOFTWARE.
 
 lexer grammar PythonLexer;
 options { superClass=PythonLexerBase; }
-tokens { INDENT, DEDENT,
-         // *** the following tokens are only for compatibility with the PythonLexerBase class ***
-         LSQB, RSQB, LBRACE, RBRACE, TYPE_COMMENT
+tokens {
+    INDENT, DEDENT,
+    // *** the following tokens are only for compatibility with the PythonLexerBase class ***
+    LSQB, RSQB, LBRACE, RBRACE, TYPE_COMMENT
 }
 
 /*
