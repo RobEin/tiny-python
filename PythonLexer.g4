@@ -28,16 +28,17 @@ THE SOFTWARE.
 
 lexer grammar PythonLexer;
 options { superClass=PythonLexerBase; }
-tokens {
+tokens { // https://docs.python.org/3.8/reference/lexical_analysis.html#indentation
     INDENT, DEDENT,
-    // *** the following tokens are only for compatibility with the PythonLexerBase class ***
+    // the following tokens are only for compatibility with the PythonLexerBase class:
     LSQB, RSQB, LBRACE, RBRACE, TYPE_COMMENT
 }
 
 /*
- * lexer rules    https://docs.python.org/3/reference/lexical_analysis.html
+ * lexer rules    https://docs.python.org/3.8/reference/lexical_analysis.html#
  */
 
+// https://docs.python.org/3.8/reference/lexical_analysis.html#keywords
 ELSE     : 'else';
 BREAK    : 'break';
 CONTINUE : 'continue';
@@ -45,6 +46,12 @@ WHILE    : 'while';
 ELIF     : 'elif';
 IF       : 'if';
 
+//**** the following two tokens are for demonstration only ****
+PRINT    : 'print'; // "print" is not a reserved keyword in Python 3
+INPUT    : 'input'; // "input" is not a reserved keyword in Python 3
+
+
+// https://docs.python.org/3.8/library/token.html#token.OP
 LPAR         : '(';  // OPEN_PAREN
 RPAR         : ')';  // CLOSE_PAREN
 COLON        : ':';
@@ -58,47 +65,55 @@ NOTEQUAL     : '!=';
 LESSEQUAL    : '<=';
 GREATEREQUAL : '>=';
 
+// // https://docs.python.org/3.8/reference/lexical_analysis.html#identifiers
 NAME
-    : ID_START ID_CONTINUE*
-    ;
+   : ID_START ID_CONTINUE*
+   ;
 
+// https://docs.python.org/3.8/reference/lexical_analysis.html#numeric-literals
 NUMBER
-    : INTEGER
-    ;
+   : INTEGER
+   ;
 
-//STRING
-//    : STRING_LITERAL
-//    ;
+// // https://docs.python.org/3.8/reference/lexical_analysis.html#string-and-bytes-literals
+STRING
+   : STRING_LITERAL
+   ;
 
-NEWLINE
-    : OS_INDEPENDENT_NL
-    ;
+// https://docs.python.org/3.8/reference/lexical_analysis.html#physical-lines
+NEWLINE : '\r'? '\n'; // Unix, Windows
 
-COMMENT      : '#' ~[\r\n\f]* -> channel(HIDDEN);
-WS           : [ \t]+         -> channel(HIDDEN);
-LINE_JOINING : '\\' NEWLINE   -> channel(HIDDEN);
+// https://docs.python.org/3.8/reference/lexical_analysis.html#comments
+COMMENT : '#' ~[\r\n\f]*             -> channel(HIDDEN);
+
+// https://docs.python.org/3.8/reference/lexical_analysis.html#whitespace-between-tokens
+WS : [ \t]+                          -> channel(HIDDEN);
+
+// https://docs.python.org/3.8/reference/lexical_analysis.html#explicit-line-joining
+EXPLICIT_LINE_JOINING : '\\' NEWLINE -> channel(HIDDEN);
 
 
 /*
  * fragments
  */
 
-//fragment STRING_LITERAL : '"' .*? '"';
+// https://docs.python.org/3.8/reference/lexical_analysis.html#literals
 
+fragment STRING_LITERAL : '"' .*? '"';
+
+// https://docs.python.org/3.8/reference/lexical_analysis.html#integer-literals
 fragment INTEGER        : DEC_INTEGER;
 fragment DEC_INTEGER    : NON_ZERO_DIGIT DIGIT* | '0';
 fragment NON_ZERO_DIGIT : [1-9];
 fragment DIGIT          : [0-9];
 
-fragment OS_INDEPENDENT_NL : '\r'? '\n'; // Unix, Windows
-
 fragment ID_CONTINUE
- : ID_START
- | [0-9]
- ;
+   : ID_START
+   | [0-9]
+   ;
 
 fragment ID_START
- : '_'
- | [A-Z]
- | [a-z]
- ;
+   : '_'
+   | [A-Z]
+   | [a-z]
+   ;

@@ -1,4 +1,4 @@
 x = 1
-if i == 0:
+if x == 1:
     # comment
-    j = 5 + x
+    x = x + 10

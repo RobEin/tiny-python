@@ -21,22 +21,23 @@ THE SOFTWARE.
  */
 
  /*
- * Project      : an ANTLR4 parser grammar based on the official Python 3.8.12 grammar
+ * Project      : an ANTLR4 parser grammar based on the official Python 3.8.17 grammar
  *                https://github.com/RobEin/tiny-python
  * Developed by : Robert Einhorn
  */
 
+
 parser grammar PythonParser; // Tiny Python based on: https://docs.python.org/3.8/reference/grammar.html
 options { tokenVocab=PythonLexer; superClass=PythonParserBase; }
-// ANTLR4 grammar for Tiny Python
 
+// ANTLR4 grammar for Tiny Python
 
 file_input: (NEWLINE | stmt)* EOF; // start rule
 
 stmt: simple_stmt | compound_stmt;
 
 simple_stmt: small_stmt NEWLINE;
-small_stmt: expr_stmt | flow_stmt;
+small_stmt: expr_stmt | flow_stmt | print_stmt;
 expr_stmt: NAME '=' expr;
 flow_stmt: break_stmt | continue_stmt;
 break_stmt: 'break';
@@ -44,16 +45,24 @@ continue_stmt: 'continue';
 
 compound_stmt: if_stmt | while_stmt;
 if_stmt: 'if' namedexpr_test ':' suite ('elif' namedexpr_test ':' suite)* ('else' ':' suite)?;
-while_stmt: 'while' namedexpr_test ':';
+while_stmt: 'while' namedexpr_test ':' suite;
 suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT;
 
 namedexpr_test: test;
-test: expr (comp_op expr)*;
+test : comparison;
+comparison: expr (comp_op expr)*;
 
 comp_op: '<'|'>'|'=='|'>='|'<='|'!=';
 
 expr: expr (( '+' | '-' ) expr)+
-    | NAME
-    | NUMBER
-    | '(' expr ')'
-    ;
+   | NAME
+   | NUMBER
+   | STRING+
+   | input_func
+   | '(' expr ')'
+   ;
+
+//*** the following rules are for demonstration only ****
+input_func: INPUT '(' arg ')'; // "input" is not a reserved keyword in Python 3
+print_stmt: PRINT '(' arg ')'; // "print" is not a reserved keyword in Python 3
+arg : NAME | STRING+ | NUMBER | expr;
