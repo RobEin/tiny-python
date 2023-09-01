@@ -1,7 +1,7 @@
 # Tiny Python &nbsp; [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-A considerably stripped down Python 3.8 grammar for a starter Python (or a Python-like) parser or even for educational purposes. 
+A considerably stripped down [Python 3.8 grammar](https://docs.python.org/3.8/reference/grammar.html) for a starter Python (or a Python-like) parser or even for educational purposes. 
 
-The ANTLR4 parser grammar is based on the last "traditional" [Python grammar](https://docs.python.org/3.8/reference/grammar.html) which not yet written in [PEG](https://en.wikipedia.org/wiki/Parsing_expression_grammar).
+The ANTLR4 parser grammar is based on the last "traditional" Python grammar which not yet written in [PEG](https://en.wikipedia.org/wiki/Parsing_expression_grammar).
 
 
 ### Related links:
