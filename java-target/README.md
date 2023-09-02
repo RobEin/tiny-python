@@ -6,6 +6,8 @@
 Unix:
 ```bash
     cp ../*.g4 .
+```
+```bash
     cp ../test.py .
 ```
 
@@ -23,5 +25,5 @@ grun Python file_input -tokens test.py
 grun Python file_input -gui test.py
 ```
 
-#### Related links:
+#### Related link:
 [Java target](https://github.com/antlr/antlr4/blob/master/doc/java-target.md)
