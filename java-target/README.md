@@ -14,14 +14,24 @@ Unix:
 Windows:
 ```bash
     copy ..\*.g4
+```
+```bash
     copy ..\test.py
 ```
 
 ```bash
 antlr4 PythonLexer.g4
+```
+```bash
 antlr4 PythonParser.g4
+```
+```bash
 javac *.java
+```
+```bash
 grun Python file_input -tokens test.py
+```
+```bash
 grun Python file_input -gui test.py
 ```
 
