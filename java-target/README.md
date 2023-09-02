@@ -1,4 +1,4 @@
-### Command line example:
+## Command line example:
 - first of all copy the two grammar files and the test.py to this directory
 
 Unix:
