@@ -1,7 +1,7 @@
 ### Java 8 target
 
 #### Command line example:
-- first build the grun_tokens.cs then copy the two grammar files and test.py to this directory
+- first create a grun_tokens named C# project then copy the two grammar files and test.py to this directory
 ```bash
     dotnet new console -o . -n grun_tokens
     del program.cs
