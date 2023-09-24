@@ -1,4 +1,4 @@
-### Java 8 target
+### C# target
 
 #### Command line example:
 - first create a grun_tokens named C# project then copy the two grammar files and test.py to this directory
