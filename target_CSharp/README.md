@@ -1,7 +1,7 @@
 ### C# target
 
 #### Command line example:
-- first create a grun_tokens named C# project then copy the two grammar files and test.py to this directory
+- first create a C# project called grun_tokens then copy the two grammar files and test.py to this directory
 ```bash
     dotnet new console -o . -n grun_tokens
     del program.cs
