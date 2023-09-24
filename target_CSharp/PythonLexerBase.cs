@@ -26,6 +26,7 @@ THE SOFTWARE.
  */
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using Antlr4.Runtime;
 
 public abstract class PythonLexerBase : Lexer
