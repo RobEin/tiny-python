@@ -22,7 +22,7 @@ dotnet build
 
 #### Related link:
 [C# target](https://github.com/antlr/antlr4/blob/dev/doc/csharp-target.md)
+
 [Download .NET](https://dotnet.microsoft.com/en-us/download)
+
 [Antlr4 Standard Runtime](https://www.nuget.org/packages/Antlr4.Runtime.Standard/)
-
-
