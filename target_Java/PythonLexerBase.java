@@ -58,8 +58,8 @@ public abstract class PythonLexerBase extends Lexer {
 
     @Override
     public Token nextToken() { // reading the input stream until a return EOF
-        if (_input.size() == 0) {
-            return new CommonToken(EOF, "<EOF>");
+        if (_input.size() == 0)     {
+            return super.nextToken(); // EOF token
         } else {
             checkNextToken();
             return _pendingTokens.pollFirst(); // add the queued token to the token stream
