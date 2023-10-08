@@ -301,7 +301,6 @@ public abstract class PythonLexerBase extends Lexer {
 
     private void reportLexerError(final String errMsg) {
         getErrorListenerDispatch().syntaxError(this, _curToken, _curToken.getLine(), _curToken.getCharPositionInLine(), errMsg, null);
-        getErrorListenerDispatch().syntaxError()
     }
 
     private void reportError(final String errMsg) {
