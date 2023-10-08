@@ -28,10 +28,9 @@ THE SOFTWARE.
 
 lexer grammar PythonLexer;
 options { superClass=PythonLexerBase; }
-tokens { // https://docs.python.org/3.8/reference/lexical_analysis.html#indentation
-    INDENT, DEDENT,
-    // the following tokens are only for compatibility with the PythonLexerBase class:
-    LSQB, RSQB, LBRACE, RBRACE, TYPE_COMMENT
+tokens {
+    INDENT, DEDENT // https://docs.python.org/3.8/reference/lexical_analysis.html#indentation
+  , LSQB, RSQB, LBRACE, RBRACE, TYPE_COMMENT // these tokens are only for compatibility with the PythonLexerBase class
 }
 
 /*
@@ -84,13 +83,15 @@ STRING
 NEWLINE : '\r'? '\n'; // Unix, Windows
 
 // https://docs.python.org/3.8/reference/lexical_analysis.html#comments
-COMMENT : '#' ~[\r\n\f]*             -> channel(HIDDEN);
+COMMENT : '#' ~[\r\n]*               -> channel(HIDDEN);
 
 // https://docs.python.org/3.8/reference/lexical_analysis.html#whitespace-between-tokens
-WS : [ \t]+                          -> channel(HIDDEN);
+WS : [ \t\f]+                        -> channel(HIDDEN);
 
 // https://docs.python.org/3.8/reference/lexical_analysis.html#explicit-line-joining
 EXPLICIT_LINE_JOINING : '\\' NEWLINE -> channel(HIDDEN);
+
+ERROR_TOKEN : . ; // catch unrecognized characters and redirect these errors to the parser
 
 
 /*
