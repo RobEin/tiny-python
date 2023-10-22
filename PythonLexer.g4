@@ -29,8 +29,11 @@ THE SOFTWARE.
 lexer grammar PythonLexer;
 options { superClass=PythonLexerBase; }
 tokens {
-    INDENT, DEDENT // https://docs.python.org/3.8/reference/lexical_analysis.html#indentation
-  , LSQB, RSQB, LBRACE, RBRACE, TYPE_COMMENT // these tokens are only for compatibility with the PythonLexerBase class
+    // https://docs.python.org/3.8/reference/lexical_analysis.html#indentation
+    INDENT, DEDENT
+
+    // the following tokens are only for compatibility with the PythonLexerBase class
+  , LSQB, RSQB, LBRACE, RBRACE, TYPE_COMMENT, FSTRING_START, FSTRING_MIDDLE, FSTRING_END
 }
 
 /*
@@ -92,6 +95,21 @@ WS : [ \t\f]+                        -> channel(HIDDEN);
 EXPLICIT_LINE_JOINING : '\\' NEWLINE -> channel(HIDDEN);
 
 ERROR_TOKEN : . ; // catch unrecognized characters and redirect these errors to the parser
+
+
+// the following lexer modes are only for compatibility with the PythonLexerBase class
+mode SINGLE_QUOTE_FSTRING_MODE;
+    A : . ;
+mode DOUBLE_QUOTE_FSTRING_MODE;
+    B : . ;
+mode LONG_SINGLE_QUOTE_FSTRING_MODE;
+    C : . ;
+mode LONG_DOUBLE_QUOTE_FSTRING_MODE;
+    D : . ;
+mode SINGLE_QUOTE_FORMAT_SPECIFICATION_MODE;
+    E : . ;
+mode DOUBLE_QUOTE_FORMAT_SPECIFICATION_MODE;
+    F : . ;
 
 
 /*
