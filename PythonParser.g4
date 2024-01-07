@@ -30,7 +30,7 @@ THE SOFTWARE.
 parser grammar PythonParser; // Tiny Python based on: https://docs.python.org/3.8/reference/grammar.html
 options { tokenVocab=PythonLexer; }
 
-// ANTLR4 grammar for Tiny Python
+// ANTLR4 grammar for a tiny Python
 
 file_input: (NEWLINE | stmt)* EOF; // start rule
 

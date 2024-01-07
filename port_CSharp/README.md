@@ -1,4 +1,4 @@
-### C# target
+### C#
 
 #### Command line example:
 - first create a C# project called grun_tokens then copy the two grammar files and test.py to this directory
