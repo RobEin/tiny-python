@@ -1,4 +1,4 @@
-### Python 3 target
+### Python 3
 
 #### Command line example:
 - first copy the two grammar files and the test.py to this directory and run the transformGrammar.py file
