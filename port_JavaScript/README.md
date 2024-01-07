@@ -1,6 +1,6 @@
 ### JavaScript
 
-#### Command line example in node.js:
+#### Command line example for node.js:
 - first copy the two grammar files and the test.py to this directory
 
 Unix:
