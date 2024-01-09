@@ -33,9 +33,9 @@ using Antlr4.Runtime;
 public abstract class PythonLexerBase : Lexer
 {
     // A stack that keeps track of the indentation lengths
-    private readonly Stack<int> _indentLengthStack = new Stack<int>();
+    private Stack<int> _indentLengthStack = new Stack<int>();
     // A list where tokens are waiting to be loaded into the token stream
-    private readonly LinkedList<IToken> _pendingTokens = new LinkedList<IToken>();
+    private LinkedList<IToken> _pendingTokens = new LinkedList<IToken>();
     // last pending token types
     private int _previousPendingTokenType = 0;
     private int _lastPendingTokenTypeFromDefaultChannel = 0;
@@ -59,6 +59,21 @@ public abstract class PythonLexerBase : Lexer
 
     protected PythonLexerBase(ICharStream input, TextWriter output, TextWriter errorOutput) : base(input, output, errorOutput)
     {
+    }
+
+    public override void Reset()
+    {
+        _indentLengthStack = new Stack<int>();
+        _pendingTokens = new LinkedList<IToken>();
+        _previousPendingTokenType = 0;
+        _lastPendingTokenTypeFromDefaultChannel = 0;
+        _opened = 0;
+        _wasSpaceIndentation = false;
+        _wasTabIndentation = false;
+        _wasIndentationMixedWithSpacesAndTabs = false;
+        _curToken = null!;
+        _ffgToken = null!;
+        base.Reset();
     }
 
     public override IToken NextToken() // reading the input stream until a return EOF
