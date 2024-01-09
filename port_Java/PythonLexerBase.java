@@ -33,7 +33,7 @@ import org.antlr.v4.runtime.*;
 
 public abstract class PythonLexerBase extends Lexer {
     // A stack that keeps track of the indentation lengths
-    private final Deque<Integer> _indentLengthStack = new ArrayDeque<>();
+    private Deque<Integer> _indentLengthStack = new ArrayDeque<>();
     // A linked where tokens are waiting to be loaded into the token stream
     private LinkedList<Token> _pendingTokens = new LinkedList<>();
 
@@ -49,13 +49,28 @@ public abstract class PythonLexerBase extends Lexer {
     private boolean _wasIndentationMixedWithSpacesAndTabs = false;
     private final int _INVALID_LENGTH = -1;
 
-    private CommonToken _curToken; // current (under processing) token
-    private Token _ffgToken; // following (look ahead) token
+    private CommonToken _curToken = null; // current (under processing) token
+    private Token _ffgToken = null; // following (look ahead) token
 
     private final String _ERR_TXT = " ERROR: ";
 
     protected PythonLexerBase(CharStream input) {
         super(input);
+    }
+
+    @Override
+    public void reset() {
+        _indentLengthStack = new ArrayDeque<>();
+        _pendingTokens = new LinkedList<>();
+        _previousPendingTokenType = 0;
+        _lastPendingTokenTypeFromDefaultChannel = 0;
+        _opened = 0;
+        _wasSpaceIndentation = false;
+        _wasTabIndentation = false;
+        _wasIndentationMixedWithSpacesAndTabs = false;
+        _curToken = null;
+        _ffgToken = null;
+        super.reset();
     }
 
     @Override
