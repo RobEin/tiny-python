@@ -1,26 +1,26 @@
 ### Java 8
 
 #### Command line example:
-- first copy the two grammar files and the test.py to this directory
+- first copy the two grammar files and the example.py to this directory
 
 Unix:
 ```bash
     cp ../*.g4 .
-    cp ../examples/test.py .
+    cp ../example.py .
 ```
 
 Windows:
 ```bash
     copy ..\*.g4
-    copy ..\examples\test.py
+    copy ..\example.py
 ```
 
 ```bash
 antlr4 PythonLexer.g4
 antlr4 PythonParser.g4
 javac *.java
-grun Python file_input -tokens test.py
-grun Python file_input -gui test.py
+grun Python file_input -tokens example.py
+grun Python file_input -gui example.py
 ```
 
 #### Related link:
