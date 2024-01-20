@@ -226,7 +226,7 @@ class PythonLexerBase(Lexer):
             self._last_pending_token_type_from_default_channel = self._previous_pending_token_type
         self._pending_tokens.append(token)
 
-    def get_indentation_length(self, textWS: str) -> int: # the textWS may contain spaces, tabs or formfeeds
+    def get_indentation_length(self, textWS: str) -> int: # the textWS may contain spaces, tabs or form feeds
         TAB_LENGTH: int = 8 # the standard number of spaces to replace a tab to spaces
         length: int = 0
         ch: str
@@ -238,7 +238,7 @@ class PythonLexerBase(Lexer):
                 case '\t':
                     self._was_tab_indentation = True
                     length += TAB_LENGTH - (length % TAB_LENGTH)
-                case '\f': # formfeed
+                case '\f': # form feed
                     length = 0
 
         if self._was_tab_indentation and self._was_space_indentation:

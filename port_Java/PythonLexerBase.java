@@ -79,9 +79,9 @@ public abstract class PythonLexerBase extends Lexer {
     }
 
     private void checkNextToken() {
-        if (_previousPendingTokenType != EOF) {
+        if (_previousPendingTokenType != Token.EOF) {
             setCurrentAndFollowingTokens();
-            if (_indentLengthStack.size() == 0) { // We're at the first token
+            if (_indentLengthStack.isEmpty()) { // We're at the first token
                 handleStartOfInput();
             }
 
@@ -108,7 +108,7 @@ public abstract class PythonLexerBase extends Lexer {
                     reportLexerError("token recognition error at: '" + _curToken.getText() + "'");
                     addPendingToken(_curToken);
                     break;
-                case EOF:
+                case Token.EOF:
                     handleEOFtoken();
                     break;
                 default:
@@ -122,7 +122,7 @@ public abstract class PythonLexerBase extends Lexer {
                     new CommonToken(super.nextToken()) :
                     new CommonToken(_ffgToken);
 
-        _ffgToken = _curToken.getType() == EOF ?
+        _ffgToken = _curToken.getType() == Token.EOF ?
                     _curToken :
                     super.nextToken();
     }
@@ -134,7 +134,7 @@ public abstract class PythonLexerBase extends Lexer {
     private void handleStartOfInput() {
         // initialize the stack with a default 0 indentation length
         _indentLengthStack.push(0); // this will never be popped off
-        while (_curToken.getType() != EOF) {
+        while (_curToken.getType() != Token.EOF) {
             if (_curToken.getChannel() == Token.DEFAULT_CHANNEL) {
                 if (_curToken.getType() == PythonLexer.NEWLINE) {
                     // all the NEWLINE tokens must be ignored before the first statement
@@ -166,7 +166,7 @@ public abstract class PythonLexerBase extends Lexer {
         if (_opened > 0) { // We're in an implicit line joining, ignore the current NEWLINE token
             hideAndAddPendingToken(_curToken);
         } else {
-            CommonToken nlToken = _curToken; // save the current NEWLINE token
+            CommonToken nlToken = new CommonToken(_curToken); // save the current NEWLINE token
             final boolean isLookingAhead = _ffgToken.getType() == PythonLexer.WS;
             if (isLookingAhead) {
                 setCurrentAndFollowingTokens(); // set the next two tokens
@@ -183,7 +183,7 @@ public abstract class PythonLexerBase extends Lexer {
                 default:
                     addPendingToken(nlToken);
                     if (isLookingAhead) { // We're on whitespace(s) followed by a statement
-                        final int indentationLength = _ffgToken.getType() == EOF ?
+                        final int indentationLength = _ffgToken.getType() == Token.EOF ?
                                                       0 :
                                                       getIndentationLength(_curToken.getText());
 
@@ -277,7 +277,7 @@ public abstract class PythonLexerBase extends Lexer {
         _pendingTokens.addLast(token);
     }
 
-    private int getIndentationLength(final String textWS) { // the textWS may contain spaces, tabs or formfeeds
+    private int getIndentationLength(final String textWS) { // the textWS may contain spaces, tabs or form feeds
         final int TAB_LENGTH = 8; // the standard number of spaces to replace a tab to spaces
         int length = 0;
         for (char ch : textWS.toCharArray()) {
@@ -290,7 +290,7 @@ public abstract class PythonLexerBase extends Lexer {
                     _wasTabIndentation = true;
                     length += TAB_LENGTH - (length % TAB_LENGTH);
                     break;
-                case '\f': // formfeed
+                case '\f': // form feed
                     length = 0;
                     break;
             }

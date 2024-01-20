@@ -27,10 +27,10 @@ THE SOFTWARE.
  *
  */
 
-import antlr4, { Token } from "antlr4";
+import { Token, CommonToken, Lexer } from "antlr4";
 import PythonLexer from "./PythonLexer.js";
 
-export default class PythonLexerBase extends antlr4.Lexer {
+export default class PythonLexerBase extends Lexer {
     constructor(input) {
         super(input);
 
@@ -80,7 +80,7 @@ export default class PythonLexerBase extends antlr4.Lexer {
     }
 
     checkNextToken() {
-        if (this._previousPendingTokenType !== PythonLexer.EOF) {
+        if (this._previousPendingTokenType !== Token.EOF) {
             this.setCurrentAndFollowingTokens();
             if (this._indentLengthStack.length === 0) { // We're at the first token
                 this.handleStartOfInput();
@@ -109,7 +109,7 @@ export default class PythonLexerBase extends antlr4.Lexer {
                     this.reportLexerError(`token recognition error at: '${this._curToken.text}'`);
                     this.addPendingToken(this._curToken);
                     break;
-                case PythonLexer.EOF:
+                case Token.EOF:
                     this.handleEOFtoken();
                     break;
                 default:
@@ -123,7 +123,7 @@ export default class PythonLexerBase extends antlr4.Lexer {
             this.getCommonTokenByToken(super.nextToken()) :
             this.getCommonTokenByToken(this._ffgToken);
 
-        this._ffgToken = this._curToken.type === PythonLexer.EOF ?
+        this._ffgToken = this._curToken.type === Token.EOF ?
             this._curToken :
             this.getCommonTokenByToken(super.nextToken());
     }
@@ -135,7 +135,7 @@ export default class PythonLexerBase extends antlr4.Lexer {
     handleStartOfInput() {
         // initialize the stack with a default 0 indentation length
         this._indentLengthStack.push(0); // this will never be popped off
-        while (this._curToken.type !== PythonLexer.EOF) {
+        while (this._curToken.type !== Token.EOF) {
             if (this._curToken.channel === Token.DEFAULT_CHANNEL) {
                 if (this._curToken.type === PythonLexer.NEWLINE) {
                     // all the NEWLINE tokens must be ignored before the first statement
@@ -167,7 +167,7 @@ export default class PythonLexerBase extends antlr4.Lexer {
         if (this._opened > 0) { // We're in an implicit line joining, ignore the current NEWLINE token
             this.hideAndAddPendingToken(this._curToken);
         } else {
-            let nlToken = this._curToken; // save the current NEWLINE token
+            let nlToken = this.getCommonTokenByToken(this._curToken); // save the current NEWLINE token
             const isLookingAhead = this._ffgToken.type === PythonLexer.WS;
             if (isLookingAhead) {
                 this.setCurrentAndFollowingTokens(); // set the next two tokens
@@ -184,7 +184,7 @@ export default class PythonLexerBase extends antlr4.Lexer {
                 default:
                     this.addPendingToken(nlToken);
                     if (isLookingAhead) { // We're on whitespace(s) followed by a statement
-                        const indentationLength = this._ffgToken.type === PythonLexer.EOF ?
+                        const indentationLength = this._ffgToken.type === Token.EOF ?
                                                   0 :
                                                   this.getIndentationLength(this._curToken.text);
 
@@ -279,7 +279,7 @@ export default class PythonLexerBase extends antlr4.Lexer {
     }
 
     getCommonTokenByToken(baseToken) {
-        let commonToken = new antlr4.CommonToken(baseToken.source, baseToken.type, baseToken.channel, baseToken.start, baseToken.stop);
+        let commonToken = new CommonToken(baseToken.source, baseToken.type, baseToken.channel, baseToken.start, baseToken.stop);
         commonToken.tokenIndex = baseToken.tokenIndex;
         commonToken.line = baseToken.line;
         commonToken.column = baseToken.column;
@@ -287,7 +287,7 @@ export default class PythonLexerBase extends antlr4.Lexer {
         return commonToken;
     }
 
-    getIndentationLength(textWS) { // the textWS may contain spaces, tabs or formfeeds
+    getIndentationLength(textWS) { // the textWS may contain spaces, tabs or form feeds
         const TAB_LENGTH = 8; // the standard number of spaces to replace a tab to spaces
         let length = 0;
 
@@ -301,7 +301,7 @@ export default class PythonLexerBase extends antlr4.Lexer {
                     this._wasTabIndentation = true;
                     length += TAB_LENGTH - (length % TAB_LENGTH);
                     break;
-                case "\f": // formfeed
+                case "\f": // form feed
                     length = 0;
                     break;
             }
