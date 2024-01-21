@@ -1,4 +1,4 @@
-### C#
+### C# implementation
 
 #### Command line example for Windows:
 - first create a C# project called grun_tokens then copy the two grammar files and example.py to this directory
@@ -20,9 +20,14 @@ dotnet build
 dotnet run example.py --no-build
 ```
 
+#### Prerequisites:
+- installed [ANTLR4-tools](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#getting-started-the-easy-way-using-antlr4-tools):
+    by [pip package installer](https://www.python.org/downloads/):
+        ```$ pip install antlr4-tools```
+    or [manually for UNIX](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#unix)
+    or [manually for Windows](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#windows)
+- installed [Microsoft .Net](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
+
+
 #### Related links:
 [C# target](https://github.com/antlr/antlr4/blob/dev/doc/csharp-target.md)
-
-[Download .NET](https://dotnet.microsoft.com/en-us/download)
-
-[Antlr4 Standard Runtime](https://www.nuget.org/packages/Antlr4.Runtime.Standard/)

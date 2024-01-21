@@ -1,4 +1,4 @@
-### Java 8
+### Java 8 implementation
 
 #### Command line example:
 - first copy the two grammar files and the example.py to this directory

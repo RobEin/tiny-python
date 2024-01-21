@@ -1,9 +1,9 @@
-### JavaScript
+### JavaScript implementation
 
 #### Command line example for [Node.js](https://nodejs.org/en/download):
 - first download the necessary node modules and set the ```type``` field in the ```package.json``` then copy the two grammar files and example.py to this directory:
 ```bash
-    npm i antlr4
+    npm install antlr4
     npm install --save-dev webpack
     npm pkg set type=module
 ```
