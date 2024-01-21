@@ -1,7 +1,7 @@
 ### C# implementation
 
 #### Command line example for Windows:
-- first create a C# project called grun_tokens then copy the two grammar files and example.py to this directory
+ - first create a C# project called grun_tokens then copy the two grammar files and example.py to this directory:
 ```bash
     dotnet new console -o . -n grun_tokens -f netcoreapp3.1
     del program.cs
