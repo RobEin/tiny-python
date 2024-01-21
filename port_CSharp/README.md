@@ -1,5 +1,10 @@
 ### C# implementation
 
+#### Prerequisites:
+- Installed [ANTLR4-tools](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#getting-started-the-easy-way-using-antlr4-tools)
+- Installed [.NET Framework](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
+ 
+
 #### Command line example for Windows:
  - first create a C# project called grun_tokens then copy the two grammar files and example.py to this directory:
 ```bash
@@ -21,10 +26,5 @@ dotnet run example.py --no-build
 ```
 
 
-#### Prerequisites:
-- Installed [ANTLR4-tools](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#getting-started-the-easy-way-using-antlr4-tools)
-- Installed [.NET Framework](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
-
-
-#### Related links:
+#### Related link:
 [C# target](https://github.com/antlr/antlr4/blob/dev/doc/csharp-target.md)
