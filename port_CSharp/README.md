@@ -20,17 +20,10 @@ dotnet build
 dotnet run example.py --no-build
 ```
 
+
 #### Prerequisites:
-- Installed [ANTLR4-tools](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#getting-started-the-easy-way-using-antlr4-tools):
-    - by [pip package installer](https://www.python.org/downloads/):
-      ```bash
-            $ pip install antlr4-tools`
-      ```
-    - or [manually for UNIX](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#unix)
- 
-    - or [manually for Windows](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#windows)
- 
-- Installed [Microsoft .Net](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
+- Installed [ANTLR4-tools](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#getting-started-the-easy-way-using-antlr4-tools)
+- Installed [.NET Framework](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
 
 
 #### Related links:
