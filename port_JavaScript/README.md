@@ -28,7 +28,7 @@ Windows:
 ```bash
 antlr4 -Dlanguage=JavaScript PythonLexer.g4
 antlr4 -Dlanguage=JavaScript PythonParser.g4
-node grun_tokens.js example.py
+node jsgrun4py.js example.py
 ```
 
 
