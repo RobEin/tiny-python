@@ -7,6 +7,8 @@ The ANTLR4 parser grammar is based on the last "traditional" [Python 3.8 grammar
 ### Related links:
 [ANTLR 4](https://www.antlr.org/)
 
+[ANTLR4-tools](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#getting-started-the-easy-way-using-antlr4-tools)
+
 [ANTLR 4 Documentation](https://github.com/antlr/antlr4/tree/master/doc)
 
 [ANTLR 4 Runtime API](https://www.antlr.org/api/Java/)
