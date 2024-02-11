@@ -21,7 +21,6 @@
 # 
 # Developed by : Robert Einhorn
 
-from collections import deque
 from typing import TextIO
 from antlr4 import InputStream, Lexer, Token
 from antlr4.Token import CommonToken
@@ -33,7 +32,7 @@ class PythonLexerBase(Lexer):
         super().__init__(input, output)
 
         # A stack that keeps track of the indentation lengths
-        self.indent_length_stack: Deque[int]
+        self.indent_length_stack: list[int]
 
         # A list where tokens are waiting to be loaded into the token stream
         self.pending_tokens: list[CommonToken]
@@ -58,7 +57,7 @@ class PythonLexerBase(Lexer):
         self.init()
 
     def init(self):
-        self.indent_length_stack = deque()
+        self.indent_length_stack = []
         self.pending_tokens = []
         self.previous_pending_token_type = 0
         self.last_pending_token_type_from_default_channel = 0
@@ -91,7 +90,7 @@ class PythonLexerBase(Lexer):
                     self.handle_NEWLINE_token()
                 case self.STRING:
                     self.handle_STRING_token()
-                case self.ERROR_TOKEN:
+                case self.ERRORTOKEN:
                     self.report_lexer_error("token recognition error at: '" + self.cur_token.text + "'")
                     self.add_pending_token(self.cur_token)
                 case Token.EOF:
@@ -253,8 +252,8 @@ class PythonLexerBase(Lexer):
     def report_error(self, err_msg):
         self.report_lexer_error(err_msg)
 
-        # the ERROR_TOKEN will raise an error in the parser
-        self.create_and_add_pending_token(self.ERROR_TOKEN, Token.DEFAULT_CHANNEL, self.ERR_TXT + err_msg, self.ffg_token)
+        # the ERRORTOKEN will raise an error in the parser
+        self.create_and_add_pending_token(self.ERRORTOKEN, Token.DEFAULT_CHANNEL, self.ERR_TXT + err_msg, self.ffg_token)
 
     def reset(self):
         self.init()

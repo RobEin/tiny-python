@@ -104,7 +104,7 @@ public abstract class PythonLexerBase extends Lexer {
                 case PythonLexer.STRING:
                     this.handleSTRINGtoken();
                     break;
-                case PythonLexer.ERROR_TOKEN:
+                case PythonLexer.ERRORTOKEN:
                     this.reportLexerError("token recognition error at: '" + this.curToken.getText() + "'");
                     this.addPendingToken(this.curToken);
                     break;
@@ -312,8 +312,8 @@ public abstract class PythonLexerBase extends Lexer {
     private void reportError(final String errMsg) {
         this.reportLexerError(errMsg);
 
-        // the ERROR_TOKEN will raise an error in the parser
-        this.createAndAddPendingToken(PythonLexer.ERROR_TOKEN, Token.DEFAULT_CHANNEL, this.ERR_TXT + errMsg, this.ffgToken);
+        // the ERRORTOKEN will raise an error in the parser
+        this.createAndAddPendingToken(PythonLexer.ERRORTOKEN, Token.DEFAULT_CHANNEL, this.ERR_TXT + errMsg, this.ffgToken);
     }
 
     @Override

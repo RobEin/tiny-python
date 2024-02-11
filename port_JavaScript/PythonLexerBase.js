@@ -103,7 +103,7 @@ export default class PythonLexerBase extends Lexer {
                 case PythonLexer.STRING:
                     this.handleSTRINGtoken();
                     break;
-                case PythonLexer.ERROR_TOKEN:
+                case PythonLexer.ERRORTOKEN:
                     this.reportLexerError(`token recognition error at: '${this.curToken.text}'`);
                     this.addPendingToken(this.curToken);
                     break;
@@ -277,12 +277,12 @@ export default class PythonLexerBase extends Lexer {
     }
 
     getCommonTokenByToken(oldToken) {
-        let commonToken = new CommonToken(oldToken.source, oldToken.type, oldToken.channel, oldToken.start, oldToken.stop);
-        commonToken.tokenIndex = oldToken.tokenIndex;
-        commonToken.line = oldToken.line;
-        commonToken.column = oldToken.column;
-        commonToken.text = oldToken.text;
-        return commonToken;
+        let cToken = new CommonToken(oldToken.source, oldToken.type, oldToken.channel, oldToken.start, oldToken.stop);
+        cToken.tokenIndex = oldToken.tokenIndex;
+        cToken.line = oldToken.line;
+        cToken.column = oldToken.column;
+        cToken.text = oldToken.text;
+        return cToken;
     }
 
     getIndentationLength(textWS) { // the textWS may contain spaces, tabs or form feeds
@@ -321,8 +321,8 @@ export default class PythonLexerBase extends Lexer {
     reportError(errMsg) {
         this.reportLexerError(errMsg);
 
-        // the ERROR_TOKEN will raise an error in the parser
-        this.createAndAddPendingToken(PythonLexer.ERROR_TOKEN, Token.DEFAULT_CHANNEL, this.ERR_TXT + errMsg, this.ffgToken);
+        // the ERRORTOKEN will raise an error in the parser
+        this.createAndAddPendingToken(PythonLexer.ERRORTOKEN, Token.DEFAULT_CHANNEL, this.ERR_TXT + errMsg, this.ffgToken);
     }
 
     reset() {

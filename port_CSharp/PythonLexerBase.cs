@@ -116,7 +116,7 @@ public abstract class PythonLexerBase : Lexer
                 case PythonLexer.STRING:
                     this.HandleSTRINGtoken();
                     break;
-                case PythonLexer.ERROR_TOKEN:
+                case PythonLexer.ERRORTOKEN:
                     this.ReportLexerError("token recognition error at: '" + this.curToken.Text + "'");
                     this.AddPendingToken(this.curToken);
                     break;
@@ -384,8 +384,8 @@ public abstract class PythonLexerBase : Lexer
     {
         this.ReportLexerError(errMsg);
 
-        // the ERROR_TOKEN will raise an error in the parser
-        this.CreateAndAddPendingToken(PythonLexer.ERROR_TOKEN, TokenConstants.DefaultChannel, PythonLexerBase.ERR_TXT + errMsg, this.ffgToken);
+        // the ERRORTOKEN will raise an error in the parser
+        this.CreateAndAddPendingToken(PythonLexer.ERRORTOKEN, TokenConstants.DefaultChannel, PythonLexerBase.ERR_TXT + errMsg, this.ffgToken);
     }
 
     public override void Reset()
