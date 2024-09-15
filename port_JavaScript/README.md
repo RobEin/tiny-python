@@ -2,14 +2,14 @@
 
 #### Prerequisites:
 - Installed [ANTLR4-tools](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#getting-started-the-easy-way-using-antlr4-tools)
-- Installed [Node.js](https://www.python.org/downloads/)
+- Installed [Node.js](https://nodejs.org/en/download/package-manager)
  
 
 #### Command line example for Node.js:
 - first download the necessary node modules and set the ```type``` field in the ```package.json``` then copy the two grammar files and example.py to this directory:
 ```bash
-    npm install --save-dev antlr4
-    npm install --save-dev webpack
+    npm install antlr4
+    npm install webpack
     npm pkg set type=module
 ```
 
