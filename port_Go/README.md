@@ -39,4 +39,4 @@ go run gogrun4py.go example.py
 
 
 #### Related link:
-[Go target](https://github.com/antlr/antlr4/blob/dev/doc/dart-target.md)
+[Go target](https://github.com/antlr/antlr4/blob/dev/doc/go-target.md)
