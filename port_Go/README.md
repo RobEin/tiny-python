@@ -3,26 +3,37 @@
 #### Prerequisites:
 - Installed [ANTLR4-tools](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#getting-started-the-easy-way-using-antlr4-tools)
 - Installed [Dart](https://dart.dev/get-dart)
+
 #### Command line example:
-First download the dependencies then copy the two grammar files and the example.py to the current bin directory:
+    first:
+     - create the go.mod file
+     - download the ANTLR4 package
+     - copy the two grammar files and the example.py to this directory
+     - run the transformGrammar.py to modify the grammars for the Go target
+
 ```bash
-    dart pub get
-    cd bin
-```
+    go mod init GoLang
+    go get github.com/antlr4-go/antlr
+``` 
+
 Unix:
 ```bash
-    cp ../../*.g4 .
-    cp ../../example.py .
+    cp ../*.g4 ./parser
+    cp ../example.py .
+    python ./parser/transformGrammar.py
 ```
+
 Windows:
 ```bash
-    copy ..\..\*.g4
-    copy ..\..\example.py
+    copy ..\*.g4 .\parser
+    copy ..\example.py
+    python .\parser\transformGrammar.py
 ```
+
 ```bash
-antlr4 -Dlanguage=Dart PythonLexer.g4
-antlr4 -Dlanguage=Dart PythonParser.g4
-dart dartgrun4py.dart example.py
+go generate ./...
+go mod tidy
+go run gogrun4py.go example.py
 ```
 
 #### Related link:
