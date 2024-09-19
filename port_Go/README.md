@@ -9,7 +9,6 @@
      - create the go.mod file
      - download the ANTLR4 package
      - copy the two grammar files and the example.py to this directory
-     - run the transformGrammar.py to modify the grammars for the Go target
 
 ```bash
     go mod init GoLang
@@ -20,14 +19,12 @@ Unix:
 ```bash
     cp ../*.g4 ./parser
     cp ../example.py .
-    python ./parser/transformGrammar.py
 ```
 
 Windows:
 ```bash
     copy ..\*.g4 .\parser
     copy ..\example.py
-    python .\parser\transformGrammar.py
 ```
 
 ```bash
