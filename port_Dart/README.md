@@ -3,6 +3,7 @@
 #### Prerequisites:
 - Installed [ANTLR4-tools](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md#getting-started-the-easy-way-using-antlr4-tools)
 - Installed [Dart](https://dart.dev/get-dart)
+
 #### Command line example:
 First download the dependencies then copy the two grammar files and the example.py to the current bin directory:
 ```bash
