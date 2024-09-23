@@ -7,20 +7,18 @@
 
 
 #### Command line example:
-- first copy the two grammar files and the example.py to this directory then run the transformGrammar.py to modify the grammars for the Python target:
+- first copy the two grammar files and the example.py to this directory:
 
 Unix:
 ```bash
     cp ../*.g4 .
     cp ../example.py .
-    python transformGrammar.py
 ```
 
 Windows:
 ```bash
     copy ..\*.g4
     copy ..\example.py
-    python transformGrammar.py
 ```
 
 ```bash
