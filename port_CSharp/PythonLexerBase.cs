@@ -34,9 +34,9 @@ using Antlr4.Runtime;
 public abstract class PythonLexerBase : Lexer
 {
     // A stack that keeps track of the indentation lengths
-    private Stack<int> indentLengthStack = new Stack<int>();
+    private Stack<int> indentLengthStack = new();
     // A list where tokens are waiting to be loaded into the token stream
-    private LinkedList<IToken> pendingTokens = new LinkedList<IToken>();
+    private LinkedList<IToken> pendingTokens = new();
 
     // last pending token types
     private int previousPendingTokenType;
@@ -79,8 +79,8 @@ public abstract class PythonLexerBase : Lexer
 
     private void Init()
     {
-        this.indentLengthStack = new Stack<int>();
-        this.pendingTokens = new LinkedList<IToken>();
+        this.indentLengthStack = new();
+        this.pendingTokens = new();
         this.previousPendingTokenType = 0;
         this.lastPendingTokenTypeFromDefaultChannel = 0;
         this.opened = 0;
