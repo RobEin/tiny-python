@@ -30,7 +30,7 @@ Windows:
 ```bash
 go generate ./...
 go mod tidy
-go run gogrun4py.go example.py
+go run grun4py.go example.py
 ```
 
 #### Related link:

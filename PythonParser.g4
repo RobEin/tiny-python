@@ -26,8 +26,9 @@ THE SOFTWARE.
  * Developed by : Robert Einhorn
  */
 
+// Tiny Python based on: https://docs.python.org/3.8/reference/grammar.html
+parser grammar PythonParser;
 
-parser grammar PythonParser; // Tiny Python based on: https://docs.python.org/3.8/reference/grammar.html
 options { tokenVocab=PythonLexer; }
 
 // ANTLR4 grammar for a tiny Python

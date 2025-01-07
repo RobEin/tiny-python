@@ -23,7 +23,7 @@ Windows:
 ```bash
 antlr4 -Dlanguage=Dart PythonLexer.g4
 antlr4 -Dlanguage=Dart PythonParser.g4
-dart dartgrun4py.dart example.py
+dart grun4py.dart example.py
 ```
 
 #### Related link:

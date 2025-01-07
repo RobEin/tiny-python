@@ -28,7 +28,9 @@ THE SOFTWARE.
   */
 
 lexer grammar PythonLexer;
+
 options { superClass=PythonLexerBase; }
+
 tokens {
     // the following tokens are only for compatibility with the PythonLexerBase class
     LSQB, RSQB, LBRACE, RBRACE
