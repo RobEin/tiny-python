@@ -25,11 +25,13 @@ THE SOFTWARE.
  * Developed by : Robert Einhorn
  */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
+#nullable enable
 using Antlr4.Runtime;
+using System;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.IO;
+using System.Collections.Generic;
 
 public abstract class PythonLexerBase : Lexer
 {
