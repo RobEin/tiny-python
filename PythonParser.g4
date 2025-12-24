@@ -21,7 +21,9 @@ THE SOFTWARE.
  */
 
  /*
- * Project      : an ANTLR4 parser grammar based on the official Python 3.8.17 grammar
+ * Project      : an ANTLR4 parser grammar for Tiny Python programming language
+ *                based on the official Python 3.8 programming language grammar
+ *
  *                https://github.com/RobEin/tiny-python
  * Developed by : Robert Einhorn
  */

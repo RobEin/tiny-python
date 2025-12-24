@@ -21,7 +21,7 @@ THE SOFTWARE.
  */
 
  /*
-  * Project      : an ANTLR4 lexer grammar for Tiny Python
+  * Project      : an ANTLR4 lexer grammar for Tiny Python programming language
   *                https://github.com/RobEin/tiny-python
   * Developed by : Robert Einhorn
   *
@@ -29,6 +29,7 @@ THE SOFTWARE.
 
 lexer grammar PythonLexer;
 
+// the helper class for this grammar that assists in tokenizing indentation
 options { superClass=PythonLexerBase; }
 
 tokens {
