@@ -1,243 +1,143 @@
-﻿using Antlr4.Runtime;
-using System.Text;
+﻿// ******* GRUN (Grammar Unit Test) for Python *******
+
+using System;
 using System.Text.RegularExpressions;
+using System.Text;
+using Antlr4.Runtime;
 
-/// <summary>
-/// GRUN (Grammar Unit Test) for Python
-/// </summary>
-public class Grun4py
+namespace grun4py
 {
-    private const string UTF8 = "utf-8";
-    private static readonly byte[] UTF8_BOM = [0xEF, 0xBB, 0xBF];
-    private static readonly byte[] UTF32_BE_BOM = [0x00, 0x00, 0xFE, 0xFF];
-    private static readonly byte[] UTF32_LE_BOM = [0xFF, 0xFE, 0x00, 0x00];
-    private static readonly byte[] UTF16_BE_BOM = [0xFE, 0xFF];
-    private static readonly byte[] UTF16_LE_BOM = [0xFF, 0xFE];
-    private const int MAX_BOM_LENGTH = 4;
-
-    private const byte MAX_ASCII = 0x7f;
-
-    private static readonly Regex ENCODING_PATTERN =
-        new(@"^[ \t\f]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)", RegexOptions.Compiled);
-
-    private static readonly Regex COMMENT_PATTERN =
-        new(@"^[ \t\f]*(#.*)?$", RegexOptions.Compiled);
-
-    private static readonly Dictionary<string, string> ENCODING_MAP = new()
+    internal static class Program
     {
-        // UTF-8
-        { "utf8sig", "utf-8" },
-        { "utf8", "utf-8" },
-        { "utf", "utf-8" },
-        // UTF-16 LE
-        { "utf16le", "utf-16LE" },
-        { "utf16", "utf-16LE" },
-        { "ucs2", "utf-16LE" },
-        { "ucs2le", "utf-16LE" },
-        // ISO-8859-1 / Latin-1
-        { "latin1", "iso-8859-1" },
-        { "latin", "iso-8859-1" },
-        { "iso88591", "iso-8859-1" },
-        { "iso8859", "iso-8859-1" },
-        { "cp819", "iso-8859-1" },
-        // ASCII
-        { "ascii", "us-ascii" },
-        { "usascii", "us-ascii" },
-        { "ansiX341968", "us-ascii" },
-        { "cp367", "us-ascii" },
-        // Deprecated alias
-        { "binary", "iso-8859-1" },
-    };
-
-    public static int Main(string[] args)
-    {
-        if (args.Length < 1)
+        public static int Main(string[] args)
         {
-            Console.Error.WriteLine("Error: Please provide an input file path");
-            return 1;
-        }
-
-        string filePath = args[0];
-        try
-        {
-            string encodingName = DetectEncoding(filePath);
-            var input = CharStreams.fromPath(filePath, Encoding.GetEncoding(encodingName));
-
-            PythonLexer lexer = new(input);
-            lexer.SetEncodingName(encodingName); // generate ENCODING token
-
-            CommonTokenStream tokens = new(lexer);
-            PythonParser parser = new(tokens);
-
-            tokens.Fill();
-            foreach (IToken token in tokens.GetTokens())
+            if (args.Length < 1)
             {
-                Console.WriteLine(FormatToken(token));
+                Console.Error.WriteLine("Error: Please provide an input file path");
+                return 1;
             }
 
-            parser.file_input();
-            return parser.NumberOfSyntaxErrors;
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine("Error: " + ex.Message);
-            Console.Error.WriteLine(ex.StackTrace);
-            return 1;
-        }
-    }
-
-    // ---------- Token formatting ----------
-
-    private static string FormatToken(IToken token)
-    {
-        string tokenText = EscapeSpecialChars(token.Text);
-        string tokenName = token.Type == TokenConstants.EOF
-            ? "EOF"
-            : PythonLexer.DefaultVocabulary.GetSymbolicName(token.Type);
-
-        string channelName = token.Channel == TokenConstants.DefaultChannel
-            ? ""
-            : $"channel={token.Channel},";
-
-        return $"[@{token.TokenIndex},{token.StartIndex}:{token.StopIndex}='{tokenText}',<{tokenName}>,{channelName}{token.Line}:{token.Column}]";
-    }
-
-    private static string EscapeSpecialChars(string text)
-    {
-        return text
-            .Replace("\n", "\\n")
-            .Replace("\r", "\\r")
-            .Replace("\t", "\\t")
-            .Replace("\f", "\\f");
-    }
-
-    // ---------- Encoding detection ----------
-
-    private static string DetectEncoding(string filePath)
-    {
-        bool hasUTF8BOM = DetectUTF8BOM(filePath);
-        string commentEncoding = DetectEncodingFromComments(filePath, hasUTF8BOM);
-        return ResolveFinalEncoding(filePath, hasUTF8BOM, commentEncoding);
-    }
-
-    private static bool DetectUTF8BOM(string filePath)
-    {
-        byte[] buffer = new byte[MAX_BOM_LENGTH];
-        using FileStream stream = File.OpenRead(filePath);
-        int bytesRead = stream.Read(buffer, 0, MAX_BOM_LENGTH);
-
-        if (BufferStartsWith(buffer, bytesRead, UTF8_BOM)) return true;
-        if (BufferStartsWith(buffer, bytesRead, UTF32_BE_BOM)) throw BomError(filePath, "UTF-32 BE BOM");
-        if (BufferStartsWith(buffer, bytesRead, UTF32_LE_BOM)) throw BomError(filePath, "UTF-32 LE BOM");
-        if (BufferStartsWith(buffer, bytesRead, UTF16_BE_BOM)) throw BomError(filePath, "UTF-16 BE BOM");
-        if (BufferStartsWith(buffer, bytesRead, UTF16_LE_BOM)) throw BomError(filePath, "UTF-16 LE BOM");
-        return false;
-    }
-
-    private static bool BufferStartsWith(byte[] buffer, int bytesRead, byte[] bom)
-    {
-        if (bytesRead < bom.Length) return false; // Not enough bytes to match this BOM
-
-        for (int i = 0; i < bom.Length; i++)
-        {
-            if (buffer[i] != bom[i])
-                return false;
-        }
-        return true;
-    }
-
-    private static IOException BomError(string filePath, string msg)
-    {
-        return new IOException($"Invalid BOM encoding for '{Path.GetFileName(filePath)}': {msg}");
-    }
-
-    private static string DetectEncodingFromComments(string filePath, bool hasUTF8BOM)
-    {
-        using FileStream stream = File.OpenRead(filePath);
-        if (hasUTF8BOM) stream.Seek(UTF8_BOM.Length, SeekOrigin.Begin);
-
-        for (int i = 0; i < 2; i++)
-        {
-            string? line = ReadAsciiLine(stream);
-            if (line == null) return "";
-
-            if (COMMENT_PATTERN.IsMatch(line))
+            try
             {
-                string enc = ExtractEncodingFromLine(line);
-                if (!string.IsNullOrEmpty(enc))
+                var filePath = args[0];
+                var input = GetEncodedInputStreamByPythonComment(filePath);
+                var lexer = new PythonLexer(input);
+                var tokens = new CommonTokenStream((ITokenSource)lexer);
+                var parser = new PythonParser(tokens);
+
+                tokens.Fill(); // Test the lexer grammar
+                foreach (IToken t in tokens.GetTokens())
                 {
-                    return enc; // encoding found in comment
+                    Console.WriteLine(GetTokenMetaDataWithTokenName(t));
+                }
+
+                parser.file_input(); // Test the parser grammar
+                return parser.NumberOfSyntaxErrors;
+
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error: {ex.Message}");
+                return 1; // Error occurred, returning non-zero exit code
+            }
+        }
+
+        private static string GetTokenMetaDataWithTokenName(IToken token)
+        {
+            string tokenText = ReplaceSpecialCharacters(token.Text);
+            string tokenName = token.Type == TokenConstants.EOF ? "EOF" : PythonLexer.DefaultVocabulary.GetDisplayName(token.Type);
+            string channelText = token.Channel == TokenConstants.DefaultChannel ? 
+                                 "" :
+                                 $"channel={PythonLexer.channelNames[token.Channel]},";
+
+            // Modified format: [@TokenIndex,StartIndex:StopIndex='Text',<TokenName>,channel=ChannelName,Line:Column]
+            return $"[@{token.TokenIndex},{token.StartIndex}:{token.StopIndex}='{tokenText}',<{tokenName}>,{channelText}{token.Line}:{token.Column}]";
+        }
+
+        private static string ReplaceSpecialCharacters(string text)
+        {
+            return text.Replace("\n", @"\n")
+                       .Replace("\r", @"\r")
+                       .Replace("\t", @"\t")
+                       .Replace("\f", @"\f");
+
+        }
+
+        public static ICharStream? GetEncodedInputStreamByPythonComment(string filePath)
+        {
+            string encodingName = "";
+            var ws_commentPattern = new Regex(@"^[ \t\f]*(#.*)?$");
+
+            try
+            {
+                using FileStream fs = new(filePath, FileMode.Open, FileAccess.Read); // read in binary mode
+                using StreamReader reader = new(fs, Encoding.ASCII);
+                for (int lineCount = 0; lineCount < 2; lineCount++)
+                {
+                    string? line = reader.ReadLine();
+                    if (line == null)
+                    {
+                        break; // EOF reached
+                    }
+
+                    if (ws_commentPattern.IsMatch(line)) // WS? + COMMENT? found
+                    {
+                        encodingName = GetEncodingName(line);
+                        if (encodingName != "") // encoding found
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break; // statement or backslash found (line is not empty, not whitespace(s), not comment)
+                    }
                 }
             }
-            else
+            catch (Exception)
             {
-                break; // statement or backslash found (the line is not blank, not whitespace(s), not comment)
+                // Console.WriteLine($"An error occurred: {e.Message}");
             }
-        }
-        return "";
-    }
 
-    private static string? ReadAsciiLine(FileStream stream)
-    {
-        StringBuilder lineBuilder = new();
-        int ascii;
-        while ((ascii = stream.ReadByte()) != -1)
+            const string DEFAULT_PYTHON_ENCODING = "utf-8"; // default encoding for Python source code
+            if (encodingName == "")
+            {
+                encodingName = DEFAULT_PYTHON_ENCODING;
+            }
+
+            try // encoding test for ANTLR4
+            {
+                return CharStreams.fromPath(filePath, Encoding.GetEncoding(encodingName));
+            }
+            catch (Exception)
+            {
+                return CharStreams.fromPath(filePath, Encoding.GetEncoding(DEFAULT_PYTHON_ENCODING));
+            }
+
+        }
+
+        public static string GetEncodingName(string commentText) // https://peps.python.org/pep-0263/#defining-the-encoding
         {
-            if (ascii > MAX_ASCII) return null;
-            if (ascii == '\n') break;
-            if (ascii != '\r') lineBuilder.Append((char)ascii);
+            var encodingCommentPattern = new Regex(@"^[ \t\f]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)");
+            var match = encodingCommentPattern.Match(commentText);
+            if (match.Success)
+            {
+                string encodingName = match.Groups[1].Value;
+
+                // normalize encoding name
+                var encodingMap = new Dictionary<string, string>
+                {
+                    { "cp1252", "latin1" },
+                    { "latin-1", "latin1" },
+                    { "iso-8859-1", "latin1" }
+                    // more encoding pairs
+                };
+
+                return encodingMap.TryGetValue(encodingName.ToLower(), out var normalizedEncodingName)
+                    ? normalizedEncodingName
+                    : encodingName;
+            }
+            return "";
         }
-        return lineBuilder.ToString();
-    }
-
-    private static string ExtractEncodingFromLine(string line)
-    {
-        Match m = ENCODING_PATTERN.Match(line);
-        if (!m.Success) return "";
-        return NormalizeEncoding(m.Groups[1].Value);
-    }
-
-    private static string NormalizeEncoding(string enc)
-    {
-        if (string.IsNullOrEmpty(enc)) return enc;
-
-        string normalized = enc
-            .ToLower()
-            .Replace("_", "")
-            .Replace("-", "")
-            .Replace(" ", "")
-            .RegexReplace(@"codec$", "");
-
-        return ENCODING_MAP.TryGetValue(normalized, out var value)
-             ? value
-             : enc;
-    }
-
-    private static string ResolveFinalEncoding(string filePath,
-                                               bool hasUTF8_BOM,
-                                               string commentEncodingName)
-    {
-        bool hasConflict = !string.IsNullOrEmpty(commentEncodingName)
-                           && hasUTF8_BOM
-                           && !IsUTF8(commentEncodingName);
-        if (hasConflict)
-        {
-            throw new IOException($"Encoding problem for '{Path.GetFileName(filePath)}': utf-8 BOM");
-        }
-        return string.IsNullOrEmpty(commentEncodingName) ? UTF8 : commentEncodingName;
-    }
-
-    private static bool IsUTF8(string enc)
-    {
-        return enc.Replace("-", "").Replace("_", "").Equals("utf8", StringComparison.CurrentCultureIgnoreCase);
-    }
-}
-
-// Extension method for regex replacement
-public static class StringExtensions
-{
-    public static string RegexReplace(this string input, string pattern, string replacement)
-    {
-        return Regex.Replace(input, pattern, replacement);
     }
 }
