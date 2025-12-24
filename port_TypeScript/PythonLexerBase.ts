@@ -21,7 +21,7 @@ THE SOFTWARE.
 
 /*
  *
- * Project      : Python Indent/Dedent handler for ANTLR4 grammars
+ * Project      : A helper class for an ANTLR4 Python lexer grammar that assists in tokenizing indentation
  *
  * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
  *
@@ -37,19 +37,19 @@ export default abstract class PythonLexerBase extends Lexer {
     // A list where tokens are waiting to be loaded into the token stream
     private pendingTokens!: Array<Token>;
 
-    // last pending token types
+    // Last pending token types
     private previousPendingTokenType!: number;
     private lastPendingTokenTypeFromDefaultChannel!: number;
 
-    // The amount of opened parentheses, square brackets or curly braces
+    // Count of open parentheses, square brackets, and curly braces
     private opened!: number;
 
     private wasSpaceIndentation!: boolean;
     private wasTabIndentation!: boolean;
     private wasIndentationMixedWithSpacesAndTabs!: boolean;
     
-    private curToken: Token | undefined; // current (under processing) token
-    private ffgToken: Token | undefined; // following (look ahead) token
+    private curToken: Token | undefined; // The current token being processed
+    private ffgToken: Token | undefined; // The following (lookahead) token
 
     private readonly INVALID_LENGTH: number = -1;
     private readonly ERR_TXT: string = " ERROR: ";
@@ -59,9 +59,9 @@ export default abstract class PythonLexerBase extends Lexer {
         this.init();
     }
 
-    public nextToken(): Token { // reading the input stream until a return EOF
+    public nextToken(): Token { // Reading the input stream until EOF is
         this.checkNextToken();
-        return this.pendingTokens.shift()! /* .pollFirst() */; // add the queued token to the token stream
+        return this.pendingTokens.shift()! /* .pollFirst() */; // Add the queued token to the token stream
     }
 
     public reset(): void {
@@ -239,16 +239,16 @@ export default abstract class PythonLexerBase extends Lexer {
         this.addPendingToken(this.curToken!);
     }
 
-    private hideAndAddPendingToken(tkn: Token): void {
-        tkn.channel = Token.HIDDEN_CHANNEL;
-        this.addPendingToken(tkn);
+    private hideAndAddPendingToken(originalToken: Token): void {
+        originalToken.channel = Token.HIDDEN_CHANNEL;
+        this.addPendingToken(originalToken);
     }
 
-    private createAndAddPendingToken(type: number, channel: number, text: string | null, sampleToken: Token): void {
-        const tkn: Token = sampleToken.clone();
+    private createAndAddPendingToken(type: number, channel: number, text: string | null, originalToken: Token): void {
+        const tkn: Token = originalToken.clone();
         tkn.type = type;
         tkn.channel = channel;
-        tkn.stop = sampleToken.start - 1;
+        tkn.stop = originalToken.start - 1;
         tkn.text = text == null ?
             `<${this.getSymbolicNames()[type]}>` :
             text;
@@ -256,13 +256,13 @@ export default abstract class PythonLexerBase extends Lexer {
         this.addPendingToken(tkn);
     }
 
-    private addPendingToken(tkn: Token): void {
+    private addPendingToken(token: Token): void {
         // save the last pending token type because the pendingTokens linked list can be empty by the nextToken()
-        this.previousPendingTokenType = tkn.type;
-        if (tkn.channel === Token.DEFAULT_CHANNEL) {
+        this.previousPendingTokenType = token.type;
+        if (token.channel === Token.DEFAULT_CHANNEL) {
             this.lastPendingTokenTypeFromDefaultChannel = this.previousPendingTokenType;
         }
-        this.pendingTokens.push(tkn) /* .addLast(token) */;
+        this.pendingTokens.push(token) /* .addLast(token) */;
     }
 
     private getIndentationLength(indentText: string): number { // the indentText may contain spaces, tabs or form feeds
@@ -294,13 +294,13 @@ export default abstract class PythonLexerBase extends Lexer {
     }
 
     private reportLexerError(errMsg: string): void {
-        this.getErrorListener().syntaxError(this, 0 /* this.curToken */, this.curToken!.line, this.curToken!.column, " LEXER" + this.ERR_TXT + errMsg, undefined);
+        this.getErrorListener().syntaxError(this, this.curToken!.type, this.curToken!.line, this.curToken!.column, " LEXER" + this.ERR_TXT + errMsg, undefined);
     }
 
     private reportError(errMsg: string): void {
         this.reportLexerError(errMsg);
 
-        // the ERRORTOKEN will raise an error in the parser
         this.createAndAddPendingToken(PythonLexer.ERRORTOKEN, Token.DEFAULT_CHANNEL, this.ERR_TXT + errMsg, this.ffgToken!);
+        // the ERRORTOKEN also triggers a parser error
     }
 }

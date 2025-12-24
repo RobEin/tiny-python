@@ -21,11 +21,13 @@ THE SOFTWARE.
 
 /*
  *
- * Project      : Python Indent/Dedent handler for ANTLR4 grammars
+ * Project      : A helper class for an ANTLR4 Python lexer grammar that assists in tokenizing indentation
  *
  * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
  *
  */
+
+// ****  Implemented in Java 8 for compatibility with ANTLR4 Java runtime **** 
 
  import java.util.*;
 
@@ -37,19 +39,19 @@ THE SOFTWARE.
      // A list where tokens are waiting to be loaded into the token stream
      private LinkedList<Token> pendingTokens;
  
-     // last pending token types
+     // Last pending token types
      private int previousPendingTokenType;
      private int lastPendingTokenTypeFromDefaultChannel;
  
-     // The amount of opened parentheses, square brackets or curly braces
+     // Count of open parentheses, square brackets, and curly braces
      private int opened;
       
      private boolean wasSpaceIndentation;
      private boolean wasTabIndentation;
      private boolean wasIndentationMixedWithSpacesAndTabs;
  
-     private Token curToken; // current (under processing) token
-     private Token ffgToken; // following (look ahead) token
+     private Token curToken; // The current token being processed
+     private Token ffgToken; // The following (lookahead) token
  
      private final int INVALID_LENGTH = -1;
      private final String ERR_TXT = " ERROR: ";
@@ -60,9 +62,9 @@ THE SOFTWARE.
      }
  
      @Override
-     public Token nextToken() { // reading the input stream until a return EOF
+     public Token nextToken() { // Reading the input stream until EOF is reached
          this.checkNextToken();
-         return this.pendingTokens.pollFirst(); // add the queued token to the token stream
+         return this.pendingTokens.pollFirst(); // Add the queued token to the token stream
      }
  
      @Override
@@ -242,17 +244,17 @@ THE SOFTWARE.
          this.addPendingToken(this.curToken);
      }
  
-     private void hideAndAddPendingToken(final Token tkn) {
-         CommonToken ctkn = new CommonToken(tkn);
+     private void hideAndAddPendingToken(final Token originalToken) {
+         CommonToken ctkn = new CommonToken(originalToken);
          ctkn.setChannel(Token.HIDDEN_CHANNEL);
          this.addPendingToken(ctkn);
      }
  
-     private void createAndAddPendingToken(final int ttype, final int channel, final String text, Token sampleToken) {
-         CommonToken ctkn = new CommonToken(sampleToken);
+     private void createAndAddPendingToken(final int ttype, final int channel, final String text, Token originalToken) {
+         CommonToken ctkn = new CommonToken(originalToken);
          ctkn.setType(ttype);
          ctkn.setChannel(channel);
-         ctkn.setStopIndex(sampleToken.getStartIndex() - 1);
+         ctkn.setStopIndex(originalToken.getStartIndex() - 1);
          ctkn.setText(text == null
                       ? "<" + this.getVocabulary().getDisplayName(ttype) + ">"
                       : text);
@@ -260,13 +262,13 @@ THE SOFTWARE.
          this.addPendingToken(ctkn);
      }
  
-     private void addPendingToken(final Token tkn) {
+     private void addPendingToken(final Token token) {
          // save the last pending token type because the pendingTokens linked list can be empty by the nextToken()
-         this.previousPendingTokenType = tkn.getType();
-         if (tkn.getChannel() == Token.DEFAULT_CHANNEL) {
+         this.previousPendingTokenType = token.getType();
+         if (token.getChannel() == Token.DEFAULT_CHANNEL) {
              this.lastPendingTokenTypeFromDefaultChannel = this.previousPendingTokenType;
          }
-         this.pendingTokens.addLast(tkn);
+         this.pendingTokens.addLast(token);
      }
  
      private int getIndentationLength(final String indentText) { // the indentText may contain spaces, tabs or form feeds
@@ -298,14 +300,14 @@ THE SOFTWARE.
      }
  
      private void reportLexerError(final String errMsg) {
-         this.getErrorListenerDispatch().syntaxError(this, this.curToken, this.curToken.getLine(), this.curToken.getCharPositionInLine(), " LEXER" + this.ERR_TXT + errMsg, null);
+         this.getErrorListenerDispatch().syntaxError(this, this.curToken.getType(), this.curToken.getLine(), this.curToken.getCharPositionInLine(), " LEXER" + this.ERR_TXT + errMsg, null);
      }
  
      private void reportError(final String errMsg) {
          this.reportLexerError(errMsg);
  
-         // the ERRORTOKEN will raise an error in the parser
          this.createAndAddPendingToken(PythonLexer.ERRORTOKEN, Token.DEFAULT_CHANNEL, this.ERR_TXT + errMsg, this.ffgToken);
+         // the ERRORTOKEN also triggers a parser error
      }
  }
  

@@ -20,7 +20,7 @@ THE SOFTWARE.
  */
 
 /*
- * Project      : Python Indent/Dedent handler for ANTLR4 grammars
+ * Project      : A helper class for an ANTLR4 Python lexer grammar that assists in tokenizing indentation
  *
  * Developed by : Robert Einhorn
  */
@@ -42,19 +42,19 @@ public abstract class PythonLexerBase : Lexer
     // A list where tokens are waiting to be loaded into the token stream
     private LinkedList<IToken> pendingTokens = new();
 
-    // last pending token types
+    // Last pending token types
     private int previousPendingTokenType;
     private int lastPendingTokenTypeFromDefaultChannel;
 
-    // The amount of opened parentheses, square brackets, or curly braces
+    // Count of open parentheses, square brackets, and curly braces
     private int opened;
 
     private bool wasSpaceIndentation;
     private bool wasTabIndentation;
     private bool wasIndentationMixedWithSpacesAndTabs;
 
-    private IToken curToken = null!; // current (under processing) token
-    private IToken ffgToken = null!; // following (look ahead) token
+    private IToken curToken = null!; // The current token being processed
+    private IToken ffgToken = null!; // The following (lookahead) token
 
     private const int INVALID_LENGTH = -1;
     private const string ERR_TXT = " ERROR: ";
@@ -67,12 +67,12 @@ public abstract class PythonLexerBase : Lexer
     {
     }
 
-    public override IToken NextToken() // reading the input stream until a return EOF
+    public override IToken NextToken() // Reading the input stream until EOF is reached
     {
         this.CheckNextToken();
         IToken firstPendingToken = this.pendingTokens.First!.Value;
         this.pendingTokens.RemoveFirst();
-        return firstPendingToken; // add the queued token to the token stream
+        return firstPendingToken; // Add the queued token to the token stream
     }
 
     public override void Reset()
@@ -187,7 +187,7 @@ public abstract class PythonLexerBase : Lexer
             {
                 const string errMsg = "first statement indented";
                 this.ReportLexerError(errMsg);
-                // insert an INDENT token before the first statement to raise an 'unexpected indent' error later by the parser
+                // insert an INDENT token before the first statement to trigger an 'unexpected indent' error later in the parser
                 this.CreateAndAddPendingToken(PythonLexer.INDENT, TokenConstants.DefaultChannel, PythonLexerBase.ERR_TXT + errMsg, this.curToken);
             }
         }
@@ -202,8 +202,8 @@ public abstract class PythonLexerBase : Lexer
         }
         else
         {
-            IToken nlToken = new CommonToken(this.curToken); // save the current NEWLINE token
-            bool isLookingAhead = this.ffgToken.Type == PythonLexer.WS;
+            var nlToken = new CommonToken(this.curToken); // save the current NEWLINE token
+            var isLookingAhead = this.ffgToken.Type == PythonLexer.WS;
             if (isLookingAhead)
             {
                 this.SetCurrentAndFollowingTokens(); // set the next two tokens
@@ -223,7 +223,7 @@ public abstract class PythonLexerBase : Lexer
                     this.AddPendingToken(nlToken);
                     if (isLookingAhead)
                     { // We're on whitespace(s) followed by a statement
-                        int indentationLength = this.ffgToken.Type == TokenConstants.EOF ?
+                        var indentationLength = this.ffgToken.Type == TokenConstants.EOF ?
                                                 0 :
                                                 this.GetIndentationLength(this.curToken.Text);
 
@@ -249,7 +249,7 @@ public abstract class PythonLexerBase : Lexer
 
     private void InsertIndentOrDedentToken(int indentLength)
     {
-        int prevIndentLength = this.indentLengthStack.Peek();
+        var prevIndentLength = this.indentLengthStack.Peek();
         if (indentLength > prevIndentLength)
         {
             this.CreateAndAddPendingToken(PythonLexer.INDENT, TokenConstants.DefaultChannel, null, this.ffgToken);
@@ -297,19 +297,19 @@ public abstract class PythonLexerBase : Lexer
         this.AddPendingToken(this.curToken);
     }
 
-    private void HideAndAddPendingToken(IToken tkn)
+    private void HideAndAddPendingToken(IToken originalToken)
     {
-        CommonToken ctkn = new CommonToken(tkn);
+        CommonToken ctkn = new CommonToken(originalToken);
         ctkn.Channel = TokenConstants.HiddenChannel;
         this.AddPendingToken(ctkn);
     }
 
-    private void CreateAndAddPendingToken(int ttype, int channel, string? text, IToken sampleToken)
+    private void CreateAndAddPendingToken(int ttype, int channel, string? text, IToken originalToken)
     {
-        CommonToken ctkn = new CommonToken(sampleToken);
+        CommonToken ctkn = new CommonToken(originalToken);
         ctkn.Type = ttype;
         ctkn.Channel = channel;
-        ctkn.StopIndex = sampleToken.StartIndex - 1;
+        ctkn.StopIndex = originalToken.StartIndex - 1;
 
         ctkn.Text = text == null
                    ? "<" + Vocabulary.GetSymbolicName(ttype) + ">"
@@ -318,21 +318,21 @@ public abstract class PythonLexerBase : Lexer
         this.AddPendingToken(ctkn);
     }
 
-    private void AddPendingToken(IToken tkn)
+    private void AddPendingToken(IToken token)
     {
         // save the last pending token type because the pendingTokens linked list can be empty by the nextToken()
-        this.previousPendingTokenType = tkn.Type;
-        if (tkn.Channel == TokenConstants.DefaultChannel)
+        this.previousPendingTokenType = token.Type;
+        if (token.Channel == TokenConstants.DefaultChannel)
         {
             this.lastPendingTokenTypeFromDefaultChannel = this.previousPendingTokenType;
         }
-        this.pendingTokens.AddLast(tkn);
+        this.pendingTokens.AddLast(token);
     }
 
     private int GetIndentationLength(string indentText) // the indentText may contain spaces, tabs or form feeds
     {
         const int TAB_LENGTH = 8; // the standard number of spaces to replace a tab with spaces
-        int length = 0;
+        var length = 0;
         foreach (char ch in indentText)
         {
             switch (ch)
@@ -371,7 +371,7 @@ public abstract class PythonLexerBase : Lexer
     {
         this.ReportLexerError(errMsg);
 
-        // the ERRORTOKEN will raise an error in the parser
         this.CreateAndAddPendingToken(PythonLexer.ERRORTOKEN, TokenConstants.DefaultChannel, PythonLexerBase.ERR_TXT + errMsg, this.ffgToken);
+        // the ERRORTOKEN also triggers a parser error
     }
 }
