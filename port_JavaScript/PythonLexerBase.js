@@ -27,6 +27,8 @@ THE SOFTWARE.
  *
  */
 
+'use strict';
+
 import { Token, Lexer } from "antlr4";
 import PythonLexer from "./PythonLexer.js";
 
@@ -82,9 +84,7 @@ export default class PythonLexerBase extends Lexer {
     }
 
     #checkNextToken() {
-        if (this.#previousPendingTokenType === Token.EOF) {
-            return;
-        }
+        if (this.#previousPendingTokenType === Token.EOF) return;
 
         this.#setCurrentAndFollowingTokens();
         if (this.#indentLengthStack.length === 0) { // We're at the first token
@@ -167,38 +167,39 @@ export default class PythonLexerBase extends Lexer {
     #handleNEWLINEtoken() {
         if (this.#opened > 0) { // We're in an implicit line joining, ignore the current NEWLINE token
             this.#hideAndAddPendingToken(this.#curToken);
-        } else {
-            let nlToken = this.#curToken.clone(); // save the current NEWLINE token
-            const isLookingAhead = this.#ffgToken.type === PythonLexer.WS;
-            if (isLookingAhead) {
-                this.#setCurrentAndFollowingTokens(); // set the next two tokens
-            }
+            return;
+        }
 
-            switch (this.#ffgToken.type) {
-                case PythonLexer.NEWLINE: // We're before a blank line
-                case PythonLexer.COMMENT: // We're before a comment
-                    this.#hideAndAddPendingToken(nlToken);
-                    if (isLookingAhead) {
+        let nlToken = this.#curToken.clone(); // save the current NEWLINE token
+        const isLookingAhead = this.#ffgToken.type === PythonLexer.WS;
+        if (isLookingAhead) {
+            this.#setCurrentAndFollowingTokens(); // set the next two tokens
+        }
+
+        switch (this.#ffgToken.type) {
+            case PythonLexer.NEWLINE: // We're before a blank line
+            case PythonLexer.COMMENT: // We're before a comment
+                this.#hideAndAddPendingToken(nlToken);
+                if (isLookingAhead) {
+                    this.#addPendingToken(this.#curToken); // WS token
+                }
+                break;
+            default:
+                this.#addPendingToken(nlToken);
+                if (isLookingAhead) { // We're on whitespace(s) followed by a statement
+                    const indentationLength = this.#ffgToken.type === Token.EOF ?
+                        0 :
+                        this.#getIndentationLength(this.#curToken.text);
+
+                    if (indentationLength !== this.#INVALID_LENGTH) {
                         this.#addPendingToken(this.#curToken); // WS token
+                        this.#insertIndentOrDedentToken(indentationLength); // may insert INDENT token or DEDENT token(s)
+                    } else {
+                        this.#reportError("inconsistent use of tabs and spaces in indentation");
                     }
-                    break;
-                default:
-                    this.#addPendingToken(nlToken);
-                    if (isLookingAhead) { // We're on whitespace(s) followed by a statement
-                        const indentationLength = this.#ffgToken.type === Token.EOF ?
-                            0 :
-                            this.#getIndentationLength(this.#curToken.text);
-
-                        if (indentationLength !== this.#INVALID_LENGTH) {
-                            this.#addPendingToken(this.#curToken); // WS token
-                            this.#insertIndentOrDedentToken(indentationLength); // may insert INDENT token or DEDENT token(s)
-                        } else {
-                            this.#reportError("inconsistent use of tabs and spaces in indentation");
-                        }
-                    } else { // We're at a newline followed by a statement (there is no whitespace before the statement)
-                        this.#insertIndentOrDedentToken(0); // may insert DEDENT token(s)
-                    }
-            }
+                } else { // We're at a newline followed by a statement (there is no whitespace before the statement)
+                    this.#insertIndentOrDedentToken(0); // may insert DEDENT token(s)
+                }
         }
     }
 

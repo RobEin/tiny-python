@@ -1,6 +1,7 @@
 // ******* GRUN (Grammar Unit Test) for Python *******
 
 import org.antlr.v4.runtime.*;
+
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.*;
@@ -15,15 +16,15 @@ public class grun4py {
         }
 
         try {
-            String filePath = args[0];
-            CharStream input = getEncodedInputStreamByPythonComment(filePath);
+            final Path path = Paths.get(args[0]);
+            CharStream input = CharStreams.fromPath(path, Charset.forName("utf-8"));
             PythonLexer lexer = new PythonLexer(input);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             PythonParser parser = new PythonParser(tokens);
 
             tokens.fill(); // Test the lexer grammar
             for (Token t : tokens.getTokens()) {
-                System.out.println(getTokenMetaDataWithTokenName(t));
+                System.out.println(formatToken(t));
             }
 
             parser.file_input(); // Test the parser grammar
@@ -35,9 +36,9 @@ public class grun4py {
         }
     }
 
-    private static String getTokenMetaDataWithTokenName(Token token) {
+    private static String formatToken(Token token) {
         String tokenText = replaceSpecialCharacters(token.getText());
-        String tokenName = token.getType() == Token.EOF ? "EOF" : PythonLexer.VOCABULARY.getDisplayName(token.getType());
+        String tokenName = token.getType() == Token.EOF ? "EOF" : PythonLexer.VOCABULARY.getSymbolicName(token.getType());
         String channelText = token.getChannel() == Token.DEFAULT_CHANNEL ?
                              "" :
                              "channel=" + PythonLexer.channelNames[token.getChannel()] + ",";
@@ -50,64 +51,9 @@ public class grun4py {
 
     private static String replaceSpecialCharacters(String text) {
         return text.replace("\n", "\\n")
-                   .replace("\r", "\\r")
-                   .replace("\t", "\\t")
-                   .replace("\f", "\\f");
+               .replace("\r", "\\r")
+               .replace("\t", "\\t")
+               .replace("\f", "\\f");
 
-    }
-
-    public static CharStream getEncodedInputStreamByPythonComment(String filePath) throws IOException {
-        String encodingName = "";
-        final Pattern ws_commentPattern = Pattern.compile("^[ \\t\\f]*(#.*)?$");
-        Path path = Paths.get(filePath);
-
-        try (InputStream inputStream = Files.newInputStream(path);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "ASCII"))) {
-
-            for (int lineCount = 0; lineCount < 2; lineCount++) {
-                String line = reader.readLine();
-                if (line == null) {
-                    break; // EOF reached
-                }
-
-                if (ws_commentPattern.matcher(line).find()) { // WS* + COMMENT? found
-                    encodingName = getEncodingName(line);
-                    if (!encodingName.isEmpty()) {
-                        break; // encoding found
-                    }
-                } else {
-                    break; // statement or backslash found (line is not empty, not whitespace(s), not comment)
-                }
-            }
-        }
-
-        final String DEFAULT_PYTHON_ENCODING = "utf-8"; // default encoding for Python source code
-        if (encodingName.isEmpty()) {
-            encodingName = DEFAULT_PYTHON_ENCODING;
-        }
-
-        try { // encoding test for ANTLR4
-            return CharStreams.fromPath(path, Charset.forName(encodingName));
-        } catch (Exception e) {
-            return CharStreams.fromPath(path, Charset.forName(DEFAULT_PYTHON_ENCODING));
-        }
-    }
-
-    public static String getEncodingName(String commentText) { // https://peps.python.org/pep-0263/#defining-the-encoding
-        Pattern encodingCommentPattern = Pattern.compile("^[ \t\f]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)");
-        Matcher match = encodingCommentPattern.matcher(commentText);
-        if (match.find()) {
-            String encodingName = match.group(1);
-
-            // normalize encoding name
-            Map<String, String> encodingMap = new HashMap<>();
-            encodingMap.put("cp1252", "latin1");
-            encodingMap.put("latin-1", "latin1");
-            encodingMap.put("iso-8859-1", "latin1");
-            // more encoding pairs
-
-            return encodingMap.getOrDefault(encodingName.toLowerCase(), encodingName);
-        }
-        return "";
     }
 }

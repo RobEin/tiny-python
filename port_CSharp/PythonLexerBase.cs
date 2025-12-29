@@ -97,42 +97,41 @@ public abstract class PythonLexerBase : Lexer
 
     private void CheckNextToken()
     {
-        if (this.previousPendingTokenType != TokenConstants.EOF)
-        {
-            this.SetCurrentAndFollowingTokens();
-            if (this.indentLengthStack.Count == 0) // We're at the first token
-            {
-                this.HandleStartOfInput();
-            }
+        if (this.previousPendingTokenType == TokenConstants.EOF) return;
 
-            switch (this.curToken.Type)
-            {
-                case PythonLexer.LPAR:
-                case PythonLexer.LSQB:
-                case PythonLexer.LBRACE:
-                    this.opened++;
-                    this.AddPendingToken(this.curToken);
-                    break;
-                case PythonLexer.RPAR:
-                case PythonLexer.RSQB:
-                case PythonLexer.RBRACE:
-                    this.opened--;
-                    this.AddPendingToken(this.curToken);
-                    break;
-                case PythonLexer.NEWLINE:
-                    this.HandleNEWLINEtoken();
-                    break;
-                case PythonLexer.ERRORTOKEN:
-                    this.ReportLexerError("token recognition error at: '" + this.curToken.Text + "'");
-                    this.AddPendingToken(this.curToken);
-                    break;
-                case TokenConstants.EOF:
-                    this.HandleEOFtoken();
-                    break;
-                default:
-                    this.AddPendingToken(this.curToken);
-                    break;
-            }
+        this.SetCurrentAndFollowingTokens();
+        if (this.indentLengthStack.Count == 0) // We're at the first token
+        {
+            this.HandleStartOfInput();
+        }
+
+        switch (this.curToken.Type)
+        {
+            case PythonLexer.LPAR:
+            case PythonLexer.LSQB:
+            case PythonLexer.LBRACE:
+                this.opened++;
+                this.AddPendingToken(this.curToken);
+                break;
+            case PythonLexer.RPAR:
+            case PythonLexer.RSQB:
+            case PythonLexer.RBRACE:
+                this.opened--;
+                this.AddPendingToken(this.curToken);
+                break;
+            case PythonLexer.NEWLINE:
+                this.HandleNEWLINEtoken();
+                break;
+            case PythonLexer.ERRORTOKEN:
+                this.ReportLexerError("token recognition error at: '" + this.curToken.Text + "'");
+                this.AddPendingToken(this.curToken);
+                break;
+            case TokenConstants.EOF:
+                this.HandleEOFtoken();
+                break;
+            default:
+                this.AddPendingToken(this.curToken);
+                break;
         }
     }
 
@@ -199,51 +198,50 @@ public abstract class PythonLexerBase : Lexer
         {
             // We're in an implicit line joining, ignore the current NEWLINE token
             this.HideAndAddPendingToken(this.curToken);
+            return;
         }
-        else
+
+        var nlToken = new CommonToken(this.curToken); // save the current NEWLINE token
+        var isLookingAhead = this.ffgToken.Type == PythonLexer.WS;
+        if (isLookingAhead)
         {
-            var nlToken = new CommonToken(this.curToken); // save the current NEWLINE token
-            var isLookingAhead = this.ffgToken.Type == PythonLexer.WS;
-            if (isLookingAhead)
-            {
-                this.SetCurrentAndFollowingTokens(); // set the next two tokens
-            }
+            this.SetCurrentAndFollowingTokens(); // set the next two tokens
+        }
 
-            switch (this.ffgToken.Type)
-            {
-                case PythonLexer.NEWLINE: // We're before a blank line
-                case PythonLexer.COMMENT: // We're before a comment
-                    this.HideAndAddPendingToken(nlToken);
-                    if (isLookingAhead)
+        switch (this.ffgToken.Type)
+        {
+            case PythonLexer.NEWLINE: // We're before a blank line
+            case PythonLexer.COMMENT: // We're before a comment
+                this.HideAndAddPendingToken(nlToken);
+                if (isLookingAhead)
+                {
+                    this.AddPendingToken(this.curToken); // WS token
+                }
+                break;
+            default:
+                this.AddPendingToken(nlToken);
+                if (isLookingAhead)
+                { // We're on whitespace(s) followed by a statement
+                    var indentationLength = this.ffgToken.Type == TokenConstants.EOF ?
+                                            0 :
+                                            this.GetIndentationLength(this.curToken.Text);
+
+                    if (indentationLength != PythonLexerBase.INVALID_LENGTH)
                     {
-                        this.AddPendingToken(this.curToken); // WS token
-                    }
-                    break;
-                default:
-                    this.AddPendingToken(nlToken);
-                    if (isLookingAhead)
-                    { // We're on whitespace(s) followed by a statement
-                        var indentationLength = this.ffgToken.Type == TokenConstants.EOF ?
-                                                0 :
-                                                this.GetIndentationLength(this.curToken.Text);
-
-                        if (indentationLength != PythonLexerBase.INVALID_LENGTH)
-                        {
-                            this.AddPendingToken(this.curToken);  // WS token
-                            this.InsertIndentOrDedentToken(indentationLength); // may insert INDENT token or DEDENT token(s)                            
-                        }
-                        else
-                        {
-                            this.ReportError("inconsistent use of tabs and spaces in indentation");
-                        }
+                        this.AddPendingToken(this.curToken);  // WS token
+                        this.InsertIndentOrDedentToken(indentationLength); // may insert INDENT token or DEDENT token(s)                            
                     }
                     else
                     {
-                        // We're at a newline followed by a statement (there is no whitespace before the statement)
-                        this.InsertIndentOrDedentToken(0); // may insert DEDENT token(s)
+                        this.ReportError("inconsistent use of tabs and spaces in indentation");
                     }
-                    break;
-            }
+                }
+                else
+                {
+                    // We're at a newline followed by a statement (there is no whitespace before the statement)
+                    this.InsertIndentOrDedentToken(0); // may insert DEDENT token(s)
+                }
+                break;
         }
     }
 
