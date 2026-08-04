@@ -1,64 +1,66 @@
-﻿// ******* GRUN (Grammar Unit Test) for Python *******
-
-using System.Text;
+﻿using System.Text;
 using Antlr4.Runtime;
 
-namespace grun4py
+/// <summary>
+/// GRUN (Grammar Unit Test) for Python
+/// </summary>
+public class Grun4py
 {
-    internal static class Program
+    public static int Main(string[] args)
     {
-        public static int Main(string[] args)
+        if (args.Length < 1)
         {
-            if (args.Length < 1)
-            {
-                Console.Error.WriteLine("Error: Please provide an input file path");
-                return 1;
-            }
-
-            try
-            {
-                var filePath = args[0];
-                var input = CharStreams.fromPath(filePath, Encoding.GetEncoding("utf-8"));
-                var lexer = new PythonLexer(input);
-                var tokens = new CommonTokenStream((ITokenSource)lexer);
-                var parser = new PythonParser(tokens);
-
-                tokens.Fill(); // Test the lexer grammar
-                foreach (IToken t in tokens.GetTokens())
-                {
-                    Console.WriteLine(FormatToken(t));
-                }
-
-                parser.file_input(); // Test the parser grammar
-                return parser.NumberOfSyntaxErrors;
-
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error: {ex.Message}");
-                return 1; // Error occurred, returning non-zero exit code
-            }
+            Console.Error.WriteLine("Error: Please provide an input file path");
+            return 1;
         }
 
-        private static string FormatToken(IToken token)
+        var filePath = args[0];
+        try
         {
-            string tokenText = ReplaceSpecialCharacters(token.Text);
-            string tokenName = token.Type == TokenConstants.EOF ? "EOF" : PythonLexer.DefaultVocabulary.GetDisplayName(token.Type);
-            string channelText = token.Channel == TokenConstants.DefaultChannel ?
-                                 "" :
-                                 $"channel={PythonLexer.channelNames[token.Channel]},";
+            var input = CharStreams.fromPath(filePath, Encoding.GetEncoding("utf-8"));
+            PythonLexer lexer = new(input);
+            CommonTokenStream tokens = new(lexer);
+            PythonParser parser = new(tokens);
 
-            // Modified format: [@TokenIndex,StartIndex:StopIndex='Text',<TokenName>,channel=ChannelName,Line:Column]
-            return $"[@{token.TokenIndex},{token.StartIndex}:{token.StopIndex}='{tokenText}',<{tokenName}>,{channelText}{token.Line}:{token.Column}]";
-        }
+            tokens.Fill();
+            foreach (IToken token in tokens.GetTokens())
+            {
+                Console.WriteLine(FormatToken(token));
+            }
 
-        private static string ReplaceSpecialCharacters(string text)
-        {
-            return text.Replace("\n", @"\n")
-                       .Replace("\r", @"\r")
-                       .Replace("\t", @"\t")
-                       .Replace("\f", @"\f");
+            parser.file_input();
+            return parser.NumberOfSyntaxErrors;
 
         }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine("Error: " + ex.Message);
+            Console.Error.WriteLine(ex.StackTrace);
+            return 1;
+        }
+    }
+
+    // ---------- Token formatting ----------
+    private static string FormatToken(IToken token)
+    {
+        var tokenText = EscapeSpecialChars(token.Text);
+        var tokenName = token.Type == TokenConstants.EOF
+            ? "EOF"
+            : PythonLexer.DefaultVocabulary.GetSymbolicName(token.Type);
+
+        var channelName = token.Channel == TokenConstants.DefaultChannel
+            ? ""
+            : $"channel={token.Channel},";
+
+        return $"[@{token.TokenIndex},{token.StartIndex}:{token.StopIndex}='{tokenText}',<{tokenName}>,{channelName}{token.Line}:{token.Column}]";
+    }
+
+    private static string EscapeSpecialChars(string text)
+    {
+        return text
+            .Replace("\n", "\\n")
+            .Replace("\r", "\\r")
+            .Replace("\t", "\\t")
+            .Replace("\f", "\\f");
     }
 }
